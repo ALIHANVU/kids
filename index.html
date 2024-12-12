@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Шапка сайта -->
     <header>
         <h1>Увлекательное программирование</h1>
         <nav>
@@ -25,6 +26,7 @@
         </div>
     </header>
 
+    <!-- Основной контент -->
     <main>
         <!-- Приветственный экран -->
         <section id="welcomeSection" class="welcome-section active-section">
@@ -43,94 +45,119 @@
                         <li>⭐ Награды за успехи</li>
                     </ul>
                 </div>
-                <button onclick="showSection('lessonsSection')" class="start-btn animated">
-                    Начать обучение
-                </button>
+                <button class="start-btn animated">Начать обучение</button>
             </div>
         </section>
 
         <!-- Секция уроков -->
         <section id="lessonsSection" class="lessons-section hidden">
             <h2>Доступные уроки</h2>
-            <div id="lessonsList" class="lessons-grid">
-                <!-- Уроки будут добавлены через JavaScript -->
-            </div>
+            <div id="lessonsList" class="lessons-grid"></div>
         </section>
 
         <!-- Секция достижений -->
         <section id="achievementsSection" class="achievements-section hidden">
             <h2>Твои достижения</h2>
-            <div id="achievementsList" class="achievements-grid">
-                <!-- Достижения будут добавлены через JavaScript -->
-            </div>
+            <div id="achievementsList" class="achievements-grid"></div>
         </section>
 
-        <!-- Шаблоны для интерактивных заданий -->
-        <template id="lessonCardTemplate">
-            <div class="lesson-card">
-                <div class="lesson-icon"></div>
-                <h3></h3>
-                <p></p>
-                <div class="lesson-difficulty"></div>
-                <button class="start-btn"></button>
+        <!-- Секция урока -->
+        <section id="lessonContentSection" class="lesson-content-section hidden">
+            <div class="lesson-container">
+                <div class="lesson-header">
+                    <h2></h2>
+                    <button class="back-btn">← К урокам</button>
+                </div>
+                <div class="step-container">
+                    <div class="step-progress"></div>
+                    <div class="step-content"></div>
+                    <div class="step-navigation">
+                        <button class="prev-btn">⬅️ Назад</button>
+                        <button class="next-btn">Вперёд ➡️</button>
+                    </div>
+                </div>
             </div>
-        </template>
+        </section>
+    </main>
 
-        <template id="achievementCardTemplate">
-            <div class="achievement-card">
-                <div class="achievement-icon"></div>
+    <!-- Шаблоны -->
+    <!-- Шаблон карточки урока -->
+    <template id="lessonCardTemplate">
+        <div class="lesson-card">
+            <div class="lesson-icon"></div>
+            <h3></h3>
+            <p></p>
+            <div class="lesson-difficulty"></div>
+            <button class="start-btn"></button>
+        </div>
+    </template>
+
+    <!-- Шаблон карточки достижения -->
+    <template id="achievementCardTemplate">
+        <div class="achievement-card">
+            <div class="achievement-icon"></div>
+            <div class="achievement-content">
                 <h3></h3>
                 <p></p>
                 <div class="achievement-points"></div>
             </div>
-        </template>
-
-        <template id="quizTemplate">
-            <div class="quiz animated">
-                <p class="question"></p>
-                <div class="options"></div>
-                <button class="check-btn">Проверить</button>
-            </div>
-        </template>
-
-        <template id="codeTaskTemplate">
-            <div class="code-task animated">
-                <div class="task-description"></div>
-                <div class="code-editor">
-                    <div class="editor-toolbar">
-                        <button class="run-btn">▶ Запустить</button>
-                        <button class="reset-btn">↺ Сбросить</button>
-                    </div>
-                    <textarea class="code-input" spellcheck="false"></textarea>
-                    <div class="output-area">
-                        <h4>Результат:</h4>
-                        <pre class="code-output"></pre>
-                    </div>
-                </div>
-                <div class="test-cases"></div>
-            </div>
-        </template>
-
-        <template id="sequenceTaskTemplate">
-            <div class="sequence-task animated">
-                <div class="blocks-available"></div>
-                <div class="sequence-solution">
-                    <p>Перетащи блоки сюда:</p>
-                    <div class="drop-zone"></div>
-                </div>
-            </div>
-        </template>
-    </main>
-
-    <footer>
-        <p>© 2024 Программирование для детей</p>
-        <div class="footer-links">
-            <button onclick="showHelp()" class="help-btn">Помощь</button>
-            <button onclick="showAbout()" class="about-btn">О проекте</button>
         </div>
-    </footer>
+    </template>
+
+    <!-- Шаблон для объяснения -->
+    <template id="explanationTemplate">
+        <div class="explanation animated">
+            <img class="explanation-image" alt="Иллюстрация">
+            <div class="explanation-content">
+                <p></p>
+                <div class="examples"></div>
+            </div>
+            <button class="continue-btn">Понятно! Идём дальше</button>
+        </div>
+    </template>
+
+    <!-- Шаблон для интерактивного задания -->
+    <template id="interactiveTemplate">
+        <div class="interactive-task animated">
+            <div class="task-description"></div>
+            <div class="task-workspace"></div>
+            <div class="task-controls">
+                <button class="check-btn">Проверить</button>
+                <button class="reset-btn">Начать заново</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Шаблон для редактора кода -->
+    <template id="codeEditorTemplate">
+        <div class="code-task animated">
+            <div class="task-description"></div>
+            <div class="code-editor">
+                <div class="editor-toolbar">
+                    <button class="run-btn">▶ Запустить</button>
+                    <button class="reset-btn">↺ Сбросить</button>
+                </div>
+                <textarea class="code-input" spellcheck="false"></textarea>
+                <div class="output-area">
+                    <h4>Результат:</h4>
+                    <pre class="code-output"></pre>
+                </div>
+            </div>
+            <div class="test-cases"></div>
+        </div>
+    </template>
+
+    <!-- Шаблон для викторины -->
+    <template id="quizTemplate">
+        <div class="quiz animated">
+            <p class="question"></p>
+            <div class="options"></div>
+            <button class="check-btn">Проверить</button>
+        </div>
+    </template>
 
     <!-- Модальные окна -->
+    <!-- Окно помощи -->
     <div id="helpModal" class="modal hidden">
         <div class="modal-content">
             <h2>Как пользоваться платформой</h2>
@@ -140,16 +167,17 @@
                 <li>Следи за своим прогрессом</li>
                 <li>Собирай достижения</li>
             </ul>
-            <button onclick="closeModal('helpModal')" class="close-btn">Закрыть</button>
+            <button class="close-btn">×</button>
         </div>
     </div>
 
+    <!-- Окно с информацией -->
     <div id="aboutModal" class="modal hidden">
         <div class="modal-content">
             <h2>О проекте</h2>
             <p>Образовательная платформа для обучения детей основам программирования.</p>
             <p>Создано с любовью к обучению и технологиям! ❤️</p>
-            <button onclick="closeModal('aboutModal')" class="close-btn">Закрыть</button>
+            <button class="close-btn">×</button>
         </div>
     </div>
 
@@ -160,7 +188,16 @@
         </div>
     </template>
 
-    <!-- Загрузка скриптов -->
+    <!-- Подвал -->
+    <footer>
+        <p>© 2024 Программирование для детей</p>
+        <div class="footer-links">
+            <button class="help-btn">Помощь</button>
+            <button class="about-btn">О проекте</button>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
     <script src="script.js"></script>
 </body>
 </html>
