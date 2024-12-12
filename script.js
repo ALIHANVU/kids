@@ -46,8 +46,8 @@ function populateLessons(lessons) {
             <h3>${lesson.title}</h3>
             <p>${lesson.description}</p>
             <div>Сложность: ${lesson.difficulty}</div>
+            <button onclick="startLesson(${lesson.id})" class="start-btn">Начать урок</button>
         `;
-        lessonCard.addEventListener('click', () => startLesson(lesson));
         lessonsContainer.appendChild(lessonCard);
     });
 }
@@ -62,37 +62,181 @@ function populateGames(games) {
             <h3>${game.title}</h3>
             <p>${game.description}</p>
             <div>Очки: ${game.points}</div>
+            <button onclick="startGame(${game.id})" class="start-btn">Играть</button>
         `;
-        gameCard.addEventListener('click', () => startGame(game));
         gamesContainer.appendChild(gameCard);
     });
 }
 
-// Заполнение достижений
-function populateAchievements(achievements) {
-    const achievementsContainer = document.getElementById('achievementsList');
-    achievements.forEach(achievement => {
-        const achievementCard = document.createElement('div');
-        achievementCard.className = 'achievement-card';
-        achievementCard.innerHTML = `
-            <h3>${achievement.title}</h3>
-            <p>${achievement.description}</p>
-            <div>Прогресс: ${achievement.progress}%</div>
-        `;
-        achievementsContainer.appendChild(achievementCard);
-    });
+// Обработка задач
+function checkTask(taskId, userAnswer) {
+    const tasks = JSON.parse(localStorage.getItem('currentTasks') || '[]');
+    const task = tasks.find(t => t.id === taskId);
+    
+    if (!task) return false;
+
+    let isCorrect = false;
+    switch (task.type) {
+        case 'sequence':
+            isCorrect = userAnswer.join(',') === task.correctAnswer.join(',');
+            break;
+        case 'quiz':
+            isCorrect = userAnswer === task.correctAnswer;
+            break;
+        case 'code':
+            isCorrect = evaluateCode(userAnswer, task.tests);
+            break;
+    }
+
+    if (isCorrect) {
+        updateAchievements(task.points);
+        showSuccess('Правильно! Молодец! 🎉');
+    } else {
+        showError('Попробуй еще раз! 💪');
+    }
+
+    return isCorrect;
 }
 
 // Запуск урока
-function startLesson(lesson) {
-    alert(`Начинаем урок: ${lesson.title}`);
-    // Здесь будет логика запуска урока
+async function startLesson(lessonId) {
+    const data = await loadData();
+    const lesson = data.lessons.find(l => l.id === lessonId);
+    
+    if (!lesson) return;
+
+    const lessonContainer = document.createElement('div');
+    lessonContainer.className = 'lesson-content';
+    lessonContainer.innerHTML = `
+        <h2>${lesson.title}</h2>
+        <div class="lesson-explanation">${lesson.explanation}</div>
+        <div class="task-container"></div>
+    `;
+
+    // Создаем интерфейс в зависимости от типа задачи
+    const taskContainer = lessonContainer.querySelector('.task-container');
+    
+    switch (lesson.taskType) {
+        case 'sequence':
+            createSequenceTask(taskContainer, lesson.task);
+            break;
+        case 'quiz':
+            createQuizTask(taskContainer, lesson.task);
+            break;
+        case 'code':
+            createCodeTask(taskContainer, lesson.task);
+            break;
+    }
+
+    // Показываем урок
+    const mainSection = document.querySelector('main');
+    mainSection.innerHTML = '';
+    mainSection.appendChild(lessonContainer);
 }
 
-// Запуск игры
-function startGame(game) {
-    alert(`Запускаем игру: ${game.title}`);
-    // Здесь будет логика запуска игры
+// Создание задачи на последовательность
+function createSequenceTask(container, task) {
+    const blocks = task.blocks.sort(() => Math.random() - 0.5);
+    
+    container.innerHTML = `
+        <div class="task-description">${task.description}</div>
+        <div class="blocks-container">
+            ${blocks.map(block => `
+                <div class="code-block" draggable="true" data-block="${block}">
+                    ${block}
+                </div>
+            `).join('')}
+        </div>
+        <div class="solution-container"></div>
+        <button onclick="checkSequenceTask()" class="check-btn">Проверить</button>
+    `;
+
+    // Добавляем функционал drag and drop
+    setupDragAndDrop(container);
+}
+
+// Создание задачи-викторины
+function createQuizTask(container, task) {
+    container.innerHTML = `
+        <div class="task-description">${task.question}</div>
+        <div class="options-container">
+            ${task.options.map((option, index) => `
+                <label class="quiz-option">
+                    <input type="radio" name="quiz" value="${index}">
+                    ${option}
+                </label>
+            `).join('')}
+        </div>
+        <button onclick="checkQuizTask()" class="check-btn">Проверить</button>
+    `;
+}
+
+// Создание задачи на программирование
+function createCodeTask(container, task) {
+    container.innerHTML = `
+        <div class="task-description">${task.description}</div>
+        <div class="code-editor">
+            <textarea class="code-input" placeholder="Напиши свой код здесь...">${task.template || ''}</textarea>
+        </div>
+        <div class="test-cases">
+            <h4>Примеры:</h4>
+            ${task.examples.map(example => `
+                <div class="example">
+                    <div>Ввод: ${example.input}</div>
+                    <div>Вывод: ${example.output}</div>
+                </div>
+            `).join('')}
+        </div>
+        <button onclick="checkCodeTask()" class="check-btn">Запустить</button>
+    `;
+}
+
+// Функции проверки задач
+function checkSequenceTask() {
+    const blocks = Array.from(document.querySelectorAll('.solution-container .code-block'))
+        .map(block => block.dataset.block);
+    return checkTask(getCurrentTaskId(), blocks);
+}
+
+function checkQuizTask() {
+    const selected = document.querySelector('input[name="quiz"]:checked');
+    if (!selected) {
+        showError('Выбери ответ!');
+        return;
+    }
+    return checkTask(getCurrentTaskId(), parseInt(selected.value));
+}
+
+function checkCodeTask() {
+    const code = document.querySelector('.code-input').value;
+    return checkTask(getCurrentTaskId(), code);
+}
+
+// Вспомогательные функции
+function showSuccess(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification success';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function showError(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification error';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function updateAchievements(points) {
+    let achievements = JSON.parse(localStorage.getItem('achievements') || '[]');
+    achievements.push({
+        points: points,
+        timestamp: Date.now()
+    });
+    localStorage.setItem('achievements', JSON.stringify(achievements));
+    updateAchievementsDisplay();
 }
 
 // Запуск приложения при загрузке страницы
