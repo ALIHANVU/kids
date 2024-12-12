@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Программирование для детей</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Увлекательное программирование</h1>
+        <nav>
+            <button id="lessonsBtn">Уроки</button>
+            <button id="gamesBtn">Игры</button>
+            <button id="achievementsBtn">Достижения</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="welcomeSection" class="active-section">
+            <h2>Добро пожаловать в мир программирования!</h2>
+            <div class="character">
+                <img src="/api/placeholder/200/200" alt="Персонаж-учитель">
+                <p>Привет! Я буду твоим учителем программирования!</p>
+            </div>
+        </section>
+
+        <section id="lessonsSection" class="hidden">
+            <h2>Уроки</h2>
+            <div id="lessonsList"></div>
+        </section>
+
+        <section id="gamesSection" class="hidden">
+            <h2>Обучающие игры</h2>
+            <div id="gamesList"></div>
+        </section>
+
+        <section id="achievementsSection" class="hidden">
+            <h2>Твои достижения</h2>
+            <div id="achievementsList"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Программирование для детей</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

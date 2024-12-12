@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(135deg, #FFE5E5 0%, #E5F3FF 50%, #E6FFE5 100%);
+    color: #333;
+    min-height: 100vh;
+}
+
+header {
+    background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+    padding: 1.5rem;
+    text-align: center;
+    color: white;
+    border-bottom: 8px solid #FFD93D;
+}
+
+h1 {
+    text-shadow: 3px 3px 0 #FF6B6B;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+nav {
+    margin-top: 1rem;
+}
+
+button {
+    background: #FFD93D;
+    border: 4px solid #FF6B6B;
+    padding: 0.8rem 1.5rem;
+    margin: 0 0.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-family: 'Comic Sans MS', cursive;
+    color: #333;
+    transition: all 0.3s;
+    box-shadow: 0 4px 0 #FF6B6B;
+}
+
+button:hover {
+    transform: translateY(-5px) rotate(-2deg);
+    box-shadow: 0 8px 0 #FF6B6B;
+    background: #FFE869;
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #FF6B6B;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+section {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 25px;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    border: 5px dashed #4ECDC4;
+}
+
+.hidden {
+    display: none;
+}
+
+.active-section {
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.character {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.character img {
+    border-radius: 50%;
+    border: 8px solid #FFD93D;
+    margin-bottom: 1rem;
+    animation: float 3s infinite ease-in-out;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.lesson-card, .game-card, .achievement-card {
+    background: white;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 20px;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 3px solid #4ECDC4;
+    position: relative;
+    overflow: hidden;
+}
+
+.lesson-card:before, .game-card:before, .achievement-card:before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    background: #FFD93D;
+    transform: rotate(45deg);
+}
+
+.lesson-card:hover, .game-card:hover {
+    transform: translateY(-5px) rotate(1deg);
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+    background: #F9F9FF;
+}
+
+.lesson-card h3, .game-card h3, .achievement-card h3 {
+    color: #FF6B6B;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(90deg, #4ECDC4, #FF6B6B);
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 5px solid #FFD93D;
+}
+
+/* Стили для прогресса достижений */
+.achievement-card .progress {
+    height: 20px;
+    background: #E5E5E5;
+    border-radius: 10px;
+    margin-top: 1rem;
+    overflow: hidden;
+    border: 2px solid #4ECDC4;
+}
+
+.achievement-card .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #FFD93D);
+    border-radius: 8px;
+    transition: width 0.5s ease;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    nav button {
+        display: block;
+        margin: 0.8rem auto;
+        width: 80%;
+    }
+
+    section {
+        padding: 1.5rem;
+    }
+
+    .lesson-card, .game-card, .achievement-card {
+        padding: 1rem;
+    }
+}
+
+/* Добавляем декоративные элементы */
+.lesson-card::after {
+    content: '📚';
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+}
+
+.game-card::after {
+    content: '🎮';
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+}
+
+.achievement-card::after {
+    content: '🏆';
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+}
+
+/* Добавляем анимацию для заголовков секций */
+section h2 {
+    color: #FF6B6B;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    text-shadow: 2px 2px 0 #FFD93D;
+}
+
+section h2::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 5px;
+    background: #4ECDC4;
+    margin: 10px auto;
+    border-radius: 5px;
+}
