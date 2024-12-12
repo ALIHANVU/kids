@@ -1,3 +1,4 @@
+/* Основные стили */
 @import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&display=swap');
 
 * {
@@ -13,6 +14,7 @@ body {
     min-height: 100vh;
 }
 
+/* Заголовок и навигация */
 header {
     background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
     padding: 1.5rem;
@@ -37,6 +39,7 @@ nav {
     margin-top: 1rem;
 }
 
+/* Кнопки */
 button {
     background: #FFD93D;
     border: 4px solid #FF6B6B;
@@ -62,6 +65,15 @@ button:active {
     box-shadow: 0 2px 0 #FF6B6B;
 }
 
+button:disabled {
+    background: #ccc;
+    border-color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Основное содержимое */
 main {
     max-width: 1200px;
     margin: 2rem auto;
@@ -77,162 +89,304 @@ section {
     border: 5px dashed #4ECDC4;
 }
 
-.hidden {
-    display: none;
-}
-
-.active-section {
-    display: block;
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.character {
-    text-align: center;
-    margin: 2rem 0;
-}
-
-.character img {
-    border-radius: 50%;
-    border: 8px solid #FFD93D;
-    margin-bottom: 1rem;
-    animation: float 3s infinite ease-in-out;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
-}
-
-.lesson-card, .game-card, .achievement-card {
+/* Карточки уроков */
+.lesson-card {
     background: white;
     padding: 1.5rem;
     margin: 1rem 0;
     border-radius: 20px;
     box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
-    cursor: pointer;
     transition: all 0.3s;
     border: 3px solid #4ECDC4;
     position: relative;
     overflow: hidden;
 }
 
-.lesson-card:before, .game-card:before, .achievement-card:before {
-    content: '';
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    width: 30px;
-    height: 30px;
-    background: #FFD93D;
-    transform: rotate(45deg);
-}
-
-.lesson-card:hover, .game-card:hover {
+.lesson-card:hover {
     transform: translateY(-5px) rotate(1deg);
     box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
-    background: #F9F9FF;
 }
 
-.lesson-card h3, .game-card h3, .achievement-card h3 {
-    color: #FF6B6B;
-    margin-bottom: 0.5rem;
-    font-size: 1.3rem;
+.lesson-card.completed {
+    border-color: #4CAF50;
+    background: #f0fff0;
 }
 
-footer {
-    text-align: center;
-    padding: 1rem;
-    background: linear-gradient(90deg, #4ECDC4, #FF6B6B);
-    color: white;
-    position: fixed;
-    bottom: 0;
+.lesson-card.locked {
+    opacity: 0.7;
+    background: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.lesson-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animated {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Прогресс */
+.progress-bar {
     width: 100%;
-    border-top: 5px solid #FFD93D;
-}
-
-/* Стили для прогресса достижений */
-.achievement-card .progress {
     height: 20px;
-    background: #E5E5E5;
+    background: #e0e0e0;
     border-radius: 10px;
-    margin-top: 1rem;
+    margin: 1rem 0;
     overflow: hidden;
-    border: 2px solid #4ECDC4;
 }
 
-.achievement-card .progress-bar {
+.progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #4ECDC4, #FFD93D);
-    border-radius: 8px;
     transition: width 0.5s ease;
 }
 
-/* Адаптивность для мобильных устройств */
+/* Достижения */
+.achievement-card {
+    background: white;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 20px;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    min-width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    border-radius: 50%;
+}
+
+.achievement-card.locked {
+    opacity: 0.7;
+    background: #f5f5f5;
+}
+
+/* Интерактивные задания */
+.interactive-task {
+    padding: 1rem;
+    background: #fff;
+    border-radius: 15px;
+    margin: 1rem 0;
+}
+
+/* Редактор кода */
+.code-editor {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.code-input {
+    width: 100%;
+    min-height: 200px;
+    background: #2d2d2d;
+    color: #fff;
+    font-family: monospace;
+    padding: 1rem;
+    border: none;
+    border-radius: 5px;
+    resize: vertical;
+    font-size: 1rem;
+}
+
+.output-area {
+    background: #fff;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+}
+
+.output-area.error {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+/* Викторина */
+.quiz .option {
+    display: block;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: #f5f5f5;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.quiz .option:hover {
+    background: #e0e0e0;
+}
+
+.quiz input[type="radio"] {
+    margin-right: 1rem;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    color: white;
+    animation: slideIn 0.3s ease-out;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.notification.success {
+    background: #4CAF50;
+}
+
+.notification.error {
+    background: #f44336;
+}
+
+/* Награды */
+.reward-screen {
+    text-align: center;
+    padding: 2rem;
+}
+
+.reward-screen h2 {
+    color: #FF6B6B;
+    margin-bottom: 2rem;
+}
+
+.new-badge {
+    font-size: 4rem;
+    margin: 2rem 0;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Интерактивные элементы */
+.sequence-item {
+    padding: 0.8rem;
+    background: #fff;
+    border: 2px solid #4ECDC4;
+    border-radius: 10px;
+    margin: 0.5rem;
+    cursor: move;
+    user-select: none;
+}
+
+.sequence-item.dragging {
+    opacity: 0.5;
+}
+
+.drop-zone {
+    min-height: 100px;
+    border: 3px dashed #4ECDC4;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    background: #f9f9f9;
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+
     h1 {
         font-size: 2rem;
     }
 
-    nav button {
-        display: block;
-        margin: 0.8rem auto;
-        width: 80%;
+    button {
+        width: 100%;
+        margin: 0.5rem 0;
     }
 
-    section {
-        padding: 1.5rem;
-    }
-
-    .lesson-card, .game-card, .achievement-card {
+    .lesson-card {
         padding: 1rem;
     }
+
+    .code-input {
+        min-height: 150px;
+    }
 }
 
-/* Добавляем декоративные элементы */
-.lesson-card::after {
-    content: '📚';
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 1.5rem;
+/* Дополнительные стили */
+.hints {
+    background: #fff3e0;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
 }
 
-.game-card::after {
-    content: '🎮';
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 1.5rem;
+.test-cases {
+    background: #e3f2fd;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
 }
 
-.achievement-card::after {
-    content: '🏆';
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    font-size: 1.5rem;
+.editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-/* Добавляем анимацию для заголовков секций */
-section h2 {
-    color: #FF6B6B;
-    text-align: center;
-    margin-bottom: 2rem;
+.run-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.reset-btn {
+    background: #f44336;
+    color: white;
+}
+
+/* Состояния загрузки */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
     position: relative;
-    text-shadow: 2px 2px 0 #FFD93D;
 }
 
-section h2::after {
+.loading::after {
     content: '';
-    display: block;
-    width: 100px;
-    height: 5px;
-    background: #4ECDC4;
-    margin: 10px auto;
-    border-radius: 5px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
