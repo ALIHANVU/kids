@@ -1,4 +1,4 @@
-/* Основные стили */
+/* Базовые стили */
 @import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&display=swap');
 
 * {
@@ -30,16 +30,10 @@ h1 {
     animation: bounce 2s infinite;
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
 nav {
     margin-top: 1rem;
 }
 
-/* Кнопки */
 button {
     background: #FFD93D;
     border: 4px solid #FF6B6B;
@@ -73,7 +67,7 @@ button:disabled {
     box-shadow: none;
 }
 
-/* Основное содержимое */
+/* Основной контент */
 main {
     max-width: 1200px;
     margin: 2rem auto;
@@ -89,7 +83,7 @@ section {
     border: 5px dashed #4ECDC4;
 }
 
-/* Карточки уроков */
+/* Уроки */
 .lesson-card {
     background: white;
     padding: 1.5rem;
@@ -125,32 +119,6 @@ section {
     font-size: 2rem;
 }
 
-/* Анимации */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.animated {
-    animation: fadeIn 0.5s ease-out;
-}
-
-/* Прогресс */
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background: #e0e0e0;
-    border-radius: 10px;
-    margin: 1rem 0;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4ECDC4, #FFD93D);
-    transition: width 0.5s ease;
-}
-
 /* Достижения */
 .achievement-card {
     background: white;
@@ -161,6 +129,12 @@ section {
     display: flex;
     align-items: center;
     gap: 1rem;
+    transition: all 0.3s;
+}
+
+.achievement-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
 }
 
 .achievement-icon {
@@ -174,25 +148,18 @@ section {
     border-radius: 50%;
 }
 
-.achievement-card.locked {
-    opacity: 0.7;
-    background: #f5f5f5;
-}
-
-/* Интерактивные задания */
-.interactive-task {
-    padding: 1rem;
-    background: #fff;
-    border-radius: 15px;
-    margin: 1rem 0;
-}
-
 /* Редактор кода */
 .code-editor {
     background: #1e1e1e;
     border-radius: 10px;
     padding: 1rem;
     margin: 1rem 0;
+}
+
+.editor-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .code-input {
@@ -206,6 +173,11 @@ section {
     border-radius: 5px;
     resize: vertical;
     font-size: 1rem;
+    line-height: 1.5;
+}
+
+.code-input:focus {
+    outline: 2px solid #4ECDC4;
 }
 
 .output-area {
@@ -213,6 +185,7 @@ section {
     padding: 1rem;
     margin-top: 1rem;
     border-radius: 5px;
+    min-height: 100px;
 }
 
 .output-area.error {
@@ -220,74 +193,14 @@ section {
     color: #d32f2f;
 }
 
-/* Викторина */
-.quiz .option {
-    display: block;
+/* Интерактивные задания */
+.interactive-task {
     padding: 1rem;
-    margin: 0.5rem 0;
-    background: #f5f5f5;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s;
+    background: #fff;
+    border-radius: 15px;
+    margin: 1rem 0;
 }
 
-.quiz .option:hover {
-    background: #e0e0e0;
-}
-
-.quiz input[type="radio"] {
-    margin-right: 1rem;
-}
-
-/* Уведомления */
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    color: white;
-    animation: slideIn 0.3s ease-out;
-    z-index: 1000;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-.notification.success {
-    background: #4CAF50;
-}
-
-.notification.error {
-    background: #f44336;
-}
-
-/* Награды */
-.reward-screen {
-    text-align: center;
-    padding: 2rem;
-}
-
-.reward-screen h2 {
-    color: #FF6B6B;
-    margin-bottom: 2rem;
-}
-
-.new-badge {
-    font-size: 4rem;
-    margin: 2rem 0;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-/* Интерактивные элементы */
 .sequence-item {
     padding: 0.8rem;
     background: #fff;
@@ -309,6 +222,146 @@ section {
     padding: 1rem;
     margin: 1rem 0;
     background: #f9f9f9;
+}
+
+/* Викторина */
+.quiz .option {
+    display: block;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: #f5f5f5;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.quiz .option:hover {
+    background: #e0e0e0;
+}
+
+.quiz input[type="radio"] {
+    margin-right: 1rem;
+}
+
+/* Прогресс */
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ECDC4, #FFD93D);
+    transition: width 0.5s ease;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    color: white;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+    background: #4CAF50;
+}
+
+.notification.error {
+    background: #f44336;
+}
+
+/* Модальные окна */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Анимации */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animated {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Подсказки */
+.hints {
+    background: #fff3e0;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.test-cases {
+    background: #e3f2fd;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+/* Достижения уведомление */
+.achievement-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #FFD93D, #FF6B6B);
+    padding: 1rem;
+    border-radius: 15px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Адаптивность */
@@ -333,37 +386,15 @@ section {
     .code-input {
         min-height: 150px;
     }
-}
 
-/* Дополнительные стили */
-.hints {
-    background: #fff3e0;
-    padding: 1rem;
-    border-radius: 10px;
-    margin: 1rem 0;
-}
+    .editor-toolbar {
+        flex-direction: column;
+    }
 
-.test-cases {
-    background: #e3f2fd;
-    padding: 1rem;
-    border-radius: 10px;
-    margin: 1rem 0;
-}
-
-.editor-toolbar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.run-btn {
-    background: #4CAF50;
-    color: white;
-}
-
-.reset-btn {
-    background: #f44336;
-    color: white;
+    .achievement-card {
+        flex-direction: column;
+        text-align: center;
+    }
 }
 
 /* Состояния загрузки */
