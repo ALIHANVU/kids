@@ -167,6 +167,51 @@ function checkAchievements() {
     });
 }
 
+function showLessonsSection() {
+    // Скрываем все секции
+    hideAllSections();
+    
+    // Показываем секцию уроков
+    const lessonsSection = document.getElementById('lessonsSection');
+    if (lessonsSection) {
+        lessonsSection.classList.remove('hidden');
+        lessonsSection.classList.add('active-section');
+        
+        // Заполняем секцию уроками
+        populateLessons();
+    }
+}
+
+function showAchievementsSection() {
+    // Скрываем все секции
+    hideAllSections();
+    
+    // Показываем секцию достижений
+    const achievementsSection = document.getElementById('achievementsSection');
+    if (achievementsSection) {
+        achievementsSection.classList.remove('hidden');
+        achievementsSection.classList.add('active-section');
+        
+        // Заполняем секцию достижениями
+        populateAchievements();
+    }
+}
+
+// Обновите функцию setupEventListeners
+function setupEventListeners() {
+    const lessonsBtn = document.getElementById('lessonsBtn');
+    const achievementsBtn = document.getElementById('achievementsBtn');
+
+    if (lessonsBtn) {
+        lessonsBtn.addEventListener('click', showLessonsSection);
+    }
+
+    if (achievementsBtn) {
+        achievementsBtn.addEventListener('click', showAchievementsSection);
+    }
+
+    document.addEventListener('keydown', handleEditorKeyPress);
+}
 // Показ достижения
 function showAchievementNotification(achievement) {
     const notification = document.createElement('div');
