@@ -402,3 +402,179 @@ function saveProgress() {
     const progress = getProgress();
     localStorage.setItem('lessonProgress', JSON.stringify(progress));
 }
+
+// Функции инициализации редактора кода
+function initializeCodeEditor() {
+    const editor = document.getElementById('code-editor');
+    if (editor) {
+        // Добавляем подсветку текущей строки
+        editor.addEventListener('keyup', () => {
+            highlightCurrentLine(editor);
+        });
+
+        // Добавляем автоматические отступы
+        editor.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                insertTab(editor);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                insertNewLineWithIndent(editor);
+            }
+        });
+
+        // Включаем автосохранение
+        editor.addEventListener('input', debounce(() => {
+            saveCodeToLocalStorage(editor.value);
+        }, 1000));
+
+        // Восстанавливаем сохраненный код
+        const savedCode = loadCodeFromLocalStorage();
+        if (savedCode) {
+            editor.value = savedCode;
+        }
+    }
+}
+
+// Функции для работы с редактором кода
+function highlightCurrentLine(editor) {
+    const lines = editor.value.substr(0, editor.selectionStart).split('\n').length;
+    const totalLines = editor.value.split('\n').length;
+    editor.style.backgroundImage = `linear-gradient(transparent ${(lines-1)*24}px, #f0f0f0 ${(lines-1)*24}px, #f0f0f0 ${lines*24}px, transparent ${lines*24}px)`;
+}
+
+function insertTab(editor) {
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const spaces = '    '; // 4 пробела для отступа
+    editor.value = editor.value.substring(0, start) + spaces + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + spaces.length;
+}
+
+function insertNewLineWithIndent(editor) {
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const lines = editor.value.substr(0, start).split('\n');
+    const currentLine = lines[lines.length - 1];
+    const indent = currentLine.match(/^\s*/)[0];
+    const newLine = '\n' + indent;
+    editor.value = editor.value.substring(0, start) + newLine + editor.value.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + newLine.length;
+}
+
+// Функции для работы с локальным хранилищем
+function saveCodeToLocalStorage(code) {
+    localStorage.setItem(`code_lesson_${currentLessonId}`, code);
+}
+
+function loadCodeFromLocalStorage() {
+    return localStorage.getItem(`code_lesson_${currentLessonId}`);
+}
+
+// Вспомогательные функции
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Функции для анимаций и визуальных эффектов
+function showSuccessAnimation() {
+    const container = document.createElement('div');
+    container.className = 'success-animation';
+    container.innerHTML = `
+        <div class="success-circle">
+            <div class="success-tick"></div>
+        </div>
+        <p>Отлично!</p>
+    `;
+    document.body.appendChild(container);
+    setTimeout(() => {
+        container.classList.add('fade-out');
+        setTimeout(() => container.remove(), 500);
+    }, 1500);
+}
+
+function showErrorAnimation() {
+    const container = document.createElement('div');
+    container.className = 'error-animation';
+    container.innerHTML = `
+        <div class="error-circle">
+            <div class="error-x"></div>
+        </div>
+        <p>Попробуй еще раз!</p>
+    `;
+    document.body.appendChild(container);
+    setTimeout(() => {
+        container.classList.add('fade-out');
+        setTimeout(() => container.remove(), 500);
+    }, 1500);
+}
+
+// Функции для отслеживания прогресса выполнения
+function trackProgress() {
+    const progress = {
+        lessonId: currentLessonId,
+        attempts: getAttempts() + 1,
+        timeSpent: getTimeSpent(),
+        timestamp: new Date().toISOString()
+    };
+    saveProgressData(progress);
+}
+
+function getAttempts() {
+    const attempts = localStorage.getItem(`attempts_lesson_${currentLessonId}`);
+    return attempts ? parseInt(attempts) : 0;
+}
+
+function getTimeSpent() {
+    const startTime = localStorage.getItem(`start_time_lesson_${currentLessonId}`);
+    if (!startTime) return 0;
+    return Math.floor((new Date() - new Date(startTime)) / 1000);
+}
+
+function saveProgressData(progress) {
+    let allProgress = JSON.parse(localStorage.getItem('lesson_progress_data') || '[]');
+    allProgress.push(progress);
+    localStorage.setItem('lesson_progress_data', JSON.stringify(allProgress));
+}
+
+// Функции для подсказок и помощи
+function showContextHelp(element) {
+    const helpText = element.dataset.help;
+    if (!helpText) return;
+
+    const helpBox = document.createElement('div');
+    helpBox.className = 'context-help';
+    helpBox.textContent = helpText;
+    
+    const rect = element.getBoundingClientRect();
+    helpBox.style.top = `${rect.bottom + 5}px`;
+    helpBox.style.left = `${rect.left}px`;
+    
+    document.body.appendChild(helpBox);
+    
+    element.addEventListener('mouseleave', () => helpBox.remove());
+}
+
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', () => {
+    loadLesson(1);
+    updateProgressUI();
+    
+    // Добавляем обработчики контекстной помощи
+    document.querySelectorAll('[data-help]').forEach(element => {
+        element.addEventListener('mouseenter', () => showContextHelp(element));
+    });
+    
+    // Устанавливаем время начала урока
+    if (!localStorage.getItem(`start_time_lesson_${currentLessonId}`)) {
+        localStorage.setItem(`start_time_lesson_${currentLessonId}`, new Date().toISOString());
+    }
+});
