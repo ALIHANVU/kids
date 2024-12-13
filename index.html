@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Шапка сайта -->
     <header>
         <h1>Увлекательное программирование</h1>
         <nav>
@@ -26,14 +25,18 @@
         </div>
     </header>
 
-    <!-- Основной контент -->
     <main>
         <!-- Приветственный экран -->
         <section id="welcomeSection" class="welcome-section active-section">
             <div class="welcome-screen">
                 <h1 class="welcome-title">Добро пожаловать в мир программирования! 👋</h1>
                 <div class="character animated">
-                    <img src="/api/placeholder/200/200" alt="Учитель">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <circle cx="100" cy="80" r="50" fill="#FFD93D"/>
+                        <circle cx="80" cy="70" r="5" fill="#333"/>
+                        <circle cx="120" cy="70" r="5" fill="#333"/>
+                        <path d="M 70 100 Q 100 130 130 100" stroke="#333" stroke-width="3" fill="none"/>
+                    </svg>
                     <p class="speech-bubble">Привет! Я буду твоим учителем программирования!</p>
                 </div>
                 <div class="welcome-info">
@@ -81,7 +84,6 @@
     </main>
 
     <!-- Шаблоны -->
-    <!-- Шаблон карточки урока -->
     <template id="lessonCardTemplate">
         <div class="lesson-card">
             <div class="lesson-icon"></div>
@@ -92,7 +94,6 @@
         </div>
     </template>
 
-    <!-- Шаблон карточки достижения -->
     <template id="achievementCardTemplate">
         <div class="achievement-card">
             <div class="achievement-icon"></div>
@@ -104,10 +105,11 @@
         </div>
     </template>
 
-    <!-- Шаблон для объяснения -->
     <template id="explanationTemplate">
         <div class="explanation animated">
-            <img class="explanation-image" alt="Иллюстрация">
+            <svg class="explanation-image" width="300" height="200" viewBox="0 0 300 200">
+                <!-- SVG-контент будет добавляться динамически -->
+            </svg>
             <div class="explanation-content">
                 <p></p>
                 <div class="examples"></div>
@@ -116,7 +118,6 @@
         </div>
     </template>
 
-    <!-- Шаблон для интерактивного задания -->
     <template id="interactiveTemplate">
         <div class="interactive-task animated">
             <div class="task-description"></div>
@@ -128,7 +129,6 @@
         </div>
     </template>
 
-    <!-- Шаблон для редактора кода -->
     <template id="codeEditorTemplate">
         <div class="code-task animated">
             <div class="task-description"></div>
@@ -147,7 +147,6 @@
         </div>
     </template>
 
-    <!-- Шаблон для викторины -->
     <template id="quizTemplate">
         <div class="quiz animated">
             <p class="question"></p>
@@ -157,7 +156,6 @@
     </template>
 
     <!-- Модальные окна -->
-    <!-- Окно помощи -->
     <div id="helpModal" class="modal hidden">
         <div class="modal-content">
             <h2>Как пользоваться платформой</h2>
@@ -171,7 +169,6 @@
         </div>
     </div>
 
-    <!-- Окно с информацией -->
     <div id="aboutModal" class="modal hidden">
         <div class="modal-content">
             <h2>О проекте</h2>
