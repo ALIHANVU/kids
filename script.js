@@ -468,79 +468,57 @@ function showInteractiveStep(step, container) {
     initializeInteractiveTask(step.task);
 }
 
-function showQuizStep(step, container) {
-    container.innerHTML = `
-        <div class="quiz animated">
-            <p class="question">${step.question}</p>
-            <div class="options">
-                ${step.options.map((option, index) => `
-                    <label class="option">
-                        <input type="radio" name="quiz" value="${index}">
-                        <span class="option-text">${option}</span>
-                    </label>
-                `).join('')}
-            </div>
-            <button class="check-btn">Проверить</button>
-        </div>
-    `;
+function checkAnswer(step) {
+    const taskType = step.task.type;
+    let isCorrect = false;
 
-    const checkBtn = container.querySelector('.check-btn');
-    if (checkBtn) {
-        checkBtn.addEventListener('click', () => checkQuizAnswer(step.correct));
+    switch (taskType) {
+        case 'sequence':
+            isCorrect = checkSequence(step.task);
+            break;
+        case 'matching':
+            isCorrect = checkMatching(step.task);
+            break;
+        case 'condition':
+            isCorrect = checkCondition(step.task);
+            break;
+    }
+
+    if (isCorrect) {
+        showSuccess("Правильно! 🎉");
+        nextStep();
+    } else {
+        showError("Попробуй еще раз! 💪");
     }
 }
 
-function showCodeStep(step, container) {
-    container.innerHTML = `
-        <div class="code-task animated">
-            <div class="task-description">
-                <p>${step.content}</p>
-                ${step.hints ? `
-                    <div class="hints">
-                        <h4>Подсказки:</h4>
-                        <ul>
-                            ${step.hints.map(hint => `<li>${hint}</li>`).join('')}
-                        </ul>
-                    </div>
-                ` : ''}
-            </div>
-            <div class="code-editor">
-                <div class="editor-toolbar">
-                    <button class="run-btn">▶ Запустить</button>
-                    <button class="reset-btn">↺ Сбросить</button>
-                </div>
-                <textarea class="code-input" spellcheck="false">${step.template || ''}</textarea>
-                <div class="output-area">
-                    <h4>Результат:</h4>
-                    <pre class="code-output"></pre>
-                </div>
-            </div>
-            ${step.test_cases ? `
-                <div class="test-cases">
-                    <h4>Тестовые случаи:</h4>
-                    ${step.test_cases.map(test => `
-                        <div class="test-case">
-                            <div>Ввод: <code>${test.input}</code></div>
-                            <div>Ожидаемый вывод: <code>${test.output}</code></div>
-                        </div>
-                    `).join('')}
-                </div>
-            ` : ''}
-        </div>
-    `;
+function checkSequence(task) {
+    const sequence = Array.from(document.querySelectorAll('.drop-zone .sequence-item'))
+        .map(item => item.dataset.value);
+    return compareArrays(sequence, task.correct);
+}
 
-    const runBtn = container.querySelector('.run-btn');
-    const resetBtn = container.querySelector('.reset-btn');
-    
-    if (runBtn) {
-        runBtn.addEventListener('click', () => runCode(step));
-    }
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => resetCode(step));
-    }
+function checkMatching(task) {
+    const matches = Array.from(document.querySelectorAll('.matching-pair'))
+        .map(pair => ({
+            box: pair.querySelector('.box').dataset.value,
+            value: pair.querySelector('.value').dataset.value
+        }));
+    return compareMatches(matches, task.pairs);
+}
 
-    // Инициализация редактора кода
-    initializeCodeEditor(container.querySelector('.code-input'));
+function checkCondition(task) {
+    const answers = Array.from(document.querySelectorAll('.condition-answer'))
+        .map(answer => ({
+            situation: answer.dataset.situation,
+            response: answer.value
+        }));
+    return compareConditions(answers, task.scenarios);
+}
+
+function resetTask(step) {
+    const stepContent = document.querySelector('.step-content');
+    showInteractiveStep(step, stepContent);
 }
 
 function createInteractiveElement(task) {
@@ -556,6 +534,67 @@ function createInteractiveElement(task) {
     }
 }
 
+function createSequenceTask(task) {
+    const blocks = shuffleArray([...task.options]);
+    return `
+        <div class="sequence-container">
+            <div class="blocks-available">
+                ${blocks.map(block => `
+                    <div class="sequence-item" draggable="true" data-value="${block}">
+                        ${block}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="sequence-solution">
+                <p>Перетащи блоки сюда:</p>
+                <div class="drop-zone"></div>
+            </div>
+        </div>
+    `;
+}
+
+function createMatchingTask(task) {
+    const boxes = shuffleArray([...task.pairs]);
+    const values = shuffleArray(task.pairs.map(p => p.value));
+    return `
+        <div class="matching-container">
+            <div class="boxes-container">
+                ${boxes.map(pair => `
+                    <div class="matching-box" data-value="${pair.box}">
+                        ${pair.box}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="values-container">
+                ${values.map(value => `
+                    <div class="matching-value" draggable="true" data-value="${value}">
+                        ${value}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="matching-pairs"></div>
+        </div>
+    `;
+}
+
+function createConditionTask(task) {
+    return `
+        <div class="condition-container">
+            ${task.scenarios.map(scenario => `
+                <div class="scenario">
+                    <p>Если ${scenario.situation}:</p>
+                    <select class="condition-answer" data-situation="${scenario.situation}">
+                        <option value="">Выбери действие...</option>
+                        ${task.options.map(option => `
+                            <option value="${option}">${option}</option>
+                        `).join('')}
+                    </select>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
 function initializeInteractiveTask(task) {
     switch (task.type) {
         case 'sequence':
@@ -567,107 +606,77 @@ function initializeInteractiveTask(task) {
     }
 }
 
-function initDragAndDrop() {
-    const items = document.querySelectorAll('.sequence-item');
-    const dropZone = document.querySelector('.drop-zone');
-
-    items.forEach(item => {
-        item.addEventListener('dragstart', dragStart);
-        item.addEventListener('dragend', dragEnd);
+function initMatchingDragAndDrop() {
+    const values = document.querySelectorAll('.matching-value');
+    const boxes = document.querySelectorAll('.matching-box');
+    
+    values.forEach(value => {
+        value.addEventListener('dragstart', dragStart);
+        value.addEventListener('dragend', dragEnd);
     });
 
-    if (dropZone) {
-        dropZone.addEventListener('dragover', dragOver);
-        dropZone.addEventListener('drop', drop);
-    }
+    boxes.forEach(box => {
+        box.addEventListener('dragover', dragOver);
+        box.addEventListener('drop', dropMatching);
+    });
 }
 
-function dragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.value);
-    e.target.classList.add('dragging');
-}
-
-function dragEnd(e) {
-    e.target.classList.remove('dragging');
-}
-
-function dragOver(e) {
+function dropMatching(e) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-}
-
-function drop(e) {
-    e.preventDefault();
-    const data = e.dataTransfer.getData('text/plain');
-    const item = document.createElement('div');
-    item.className = 'sequence-item';
-    item.dataset.value = data;
-    item.textContent = data;
-    item.draggable = true;
+    const value = e.dataTransfer.getData('text/plain');
+    const box = e.target.closest('.matching-box');
     
-    // Добавляем те же обработчики для возможности перемещения
-    item.addEventListener('dragstart', dragStart);
-    item.addEventListener('dragend', dragEnd);
-    
-    const dropZone = e.target.closest('.drop-zone') || e.target;
-    dropZone.appendChild(item);
-}
-
-function returnToLessons() {
-    showLessonsSection();
-}
-
-function nextStep() {
-    const lesson = getCurrentLesson();
-    if (userProgress.currentStep < lesson.steps.length - 1) {
-        userProgress.currentStep++;
-        saveProgress();
-        showLesson(lesson);
-    } else {
-        completeLessonAndShowReward(lesson);
+    if (box) {
+        const pairDiv = document.createElement('div');
+        pairDiv.className = 'matching-pair';
+        pairDiv.innerHTML = `
+            <div class="box" data-value="${box.dataset.value}">${box.textContent}</div>
+            <div class="value" data-value="${value}">${value}</div>
+        `;
+        box.parentElement.appendChild(pairDiv);
     }
 }
 
-function previousStep() {
-    if (userProgress.currentStep > 0) {
-        userProgress.currentStep--;
-        saveProgress();
-        showLesson(getCurrentLesson());
-    }
+// Вспомогательные функции
+function showSuccess(message) {
+    showNotification(message, 'success');
 }
 
-function jumpToStep(stepIndex) {
-    const lesson = getCurrentLesson();
-    if (stepIndex <= userProgress.currentStep) {
-        userProgress.currentStep = stepIndex;
-        showLesson(lesson);
-    }
+function showError(message) {
+    showNotification(message, 'error');
 }
 
-function completeLessonAndShowReward(lesson) {
-    if (!userProgress.completedLessons.includes(lesson.id)) {
-        userProgress.completedLessons.push(lesson.id);
-        userProgress.points += lesson.reward.points;
-        userProgress.badges.push(lesson.reward.badge);
-        saveProgress();
-    }
-
-    showReward(lesson.reward);
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type} animated`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
 }
 
-function showReward(reward) {
-    const mainContent = document.querySelector('main');
-    mainContent.innerHTML = `
-        <div class="reward-screen animated">
-            <h2>Поздравляем! 🎉</h2>
-            <div class="reward-content">
-                <p>Ты заработал ${reward.points} очков!</p>
-                <div class="new-badge animated">${reward.badge}</div>
-                <p>Новое достижение!</p>
-            </div>
-            <button onclick="returnToLessons()" class="continue-btn">
-                Продолжить обучение
-            </button>
-        </div>
-    `;
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function compareArrays(arr1, arr2) {
+    return arr1.length === arr2.length && 
+           arr1.every((item, index) => item === arr2[index]);
+}
+
+function compareMatches(userMatches, correctPairs) {
+    return correctPairs.every(pair => {
+        const userMatch = userMatches.find(m => m.box === pair.box);
+        return userMatch && userMatch.value === pair.value;
+    });
+}
+
+function compareConditions(userAnswers, correctScenarios) {
+    return correctScenarios.every(scenario => {
+        const userAnswer = userAnswers.find(a => a.situation === scenario.situation);
+        return userAnswer && userAnswer.response === scenario.correct;
+    });
 }
