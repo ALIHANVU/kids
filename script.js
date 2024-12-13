@@ -37,23 +37,45 @@ async function loadData() {
     }
 }
 
+// Управление секциями
+function hideAllSections() {
+    document.querySelectorAll('section').forEach(section => {
+        section.classList.add('hidden');
+        section.classList.remove('active-section');
+    });
+}
+
+function showLessonsSection() {
+    hideAllSections();
+    const lessonsSection = document.getElementById('lessonsSection');
+    if (lessonsSection) {
+        lessonsSection.classList.remove('hidden');
+        lessonsSection.classList.add('active-section');
+        populateLessons();
+    }
+}
+
+function showAchievementsSection() {
+    hideAllSections();
+    const achievementsSection = document.getElementById('achievementsSection');
+    if (achievementsSection) {
+        achievementsSection.classList.remove('hidden');
+        achievementsSection.classList.add('active-section');
+        populateAchievements();
+    }
+}
+
 // Настройка обработчиков событий
 function setupEventListeners() {
     const lessonsBtn = document.getElementById('lessonsBtn');
     const achievementsBtn = document.getElementById('achievementsBtn');
 
     if (lessonsBtn) {
-        lessonsBtn.addEventListener('click', function() {
-            hideAllSections();
-            showLessonsSection();
-        });
+        lessonsBtn.addEventListener('click', showLessonsSection);
     }
 
     if (achievementsBtn) {
-        achievementsBtn.addEventListener('click', function() {
-            hideAllSections();
-            showAchievementsSection();
-        });
+        achievementsBtn.addEventListener('click', showAchievementsSection);
     }
 
     document.addEventListener('keydown', handleEditorKeyPress);
@@ -85,6 +107,21 @@ function setupModalHandlers() {
             }
         });
     });
+}
+
+// Показ/скрытие модальных окон
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+    }
 }
 
 // Обработка клавиш в редакторе
@@ -167,51 +204,6 @@ function checkAchievements() {
     });
 }
 
-function showLessonsSection() {
-    // Скрываем все секции
-    hideAllSections();
-    
-    // Показываем секцию уроков
-    const lessonsSection = document.getElementById('lessonsSection');
-    if (lessonsSection) {
-        lessonsSection.classList.remove('hidden');
-        lessonsSection.classList.add('active-section');
-        
-        // Заполняем секцию уроками
-        populateLessons();
-    }
-}
-
-function showAchievementsSection() {
-    // Скрываем все секции
-    hideAllSections();
-    
-    // Показываем секцию достижений
-    const achievementsSection = document.getElementById('achievementsSection');
-    if (achievementsSection) {
-        achievementsSection.classList.remove('hidden');
-        achievementsSection.classList.add('active-section');
-        
-        // Заполняем секцию достижениями
-        populateAchievements();
-    }
-}
-
-// Обновите функцию setupEventListeners
-function setupEventListeners() {
-    const lessonsBtn = document.getElementById('lessonsBtn');
-    const achievementsBtn = document.getElementById('achievementsBtn');
-
-    if (lessonsBtn) {
-        lessonsBtn.addEventListener('click', showLessonsSection);
-    }
-
-    if (achievementsBtn) {
-        achievementsBtn.addEventListener('click', showAchievementsSection);
-    }
-
-    document.addEventListener('keydown', handleEditorKeyPress);
-}
 // Показ достижения
 function showAchievementNotification(achievement) {
     const notification = document.createElement('div');
@@ -226,38 +218,6 @@ function showAchievementNotification(achievement) {
     `;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 5000);
-}
-
-// Управление секциями
-function hideAllSections() {
-    document.querySelectorAll('section').forEach(section => {
-        section.classList.add('hidden');
-        section.classList.remove('active-section');
-    });
-}
-
-function showSection(sectionId) {
-    hideAllSections();
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.remove('hidden');
-        section.classList.add('active-section');
-    }
-}
-
-// Модальные окна
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('hidden');
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-    }
 }
 
 // Работа с уроками
@@ -290,10 +250,7 @@ function showWelcomeScreen() {
 
     const startBtn = mainContent.querySelector('.start-btn');
     if (startBtn) {
-        startBtn.addEventListener('click', () => {
-            hideAllSections();
-            showLessonsSection();
-        });
+        startBtn.addEventListener('click', showLessonsSection);
     }
 }
 
@@ -353,6 +310,39 @@ function getDifficultyStars(difficulty) {
         case 'сложный': return '⭐⭐⭐';
         default: return '⭐';
     }
+}
+
+function populateAchievements() {
+    const achievementsContainer = document.getElementById('achievementsList');
+    if (!achievementsContainer) return;
+
+    achievementsContainer.innerHTML = '';
+    
+    data.achievements.forEach(achievement => {
+        const isUnlocked = userProgress.badges.includes(achievement.icon);
+        const achievementCard = createAchievementCard(achievement, isUnlocked);
+        achievementsContainer.appendChild(achievementCard);
+    });
+}
+
+function createAchievementCard(achievement, isUnlocked) {
+    const card = document.createElement('div');
+    card.className = `achievement-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+    
+    card.innerHTML = `
+        <div class="achievement-icon">
+            ${isUnlocked ? achievement.icon : '?'}
+        </div>
+        <div class="achievement-content">
+            <h3>${isUnlocked ? achievement.title : 'Скрытое достижение'}</h3>
+            <p>${isUnlocked ? achievement.description : 'Продолжай обучение, чтобы открыть!'}</p>
+            <div class="achievement-points">
+                ${isUnlocked ? `+${achievement.points} очков` : ''}
+            </div>
+        </div>
+    `;
+    
+    return card;
 }
 
 // Запуск урока
@@ -447,7 +437,10 @@ function showExplanationStep(step, container) {
         </div>
     `;
 
-    container.querySelector('.continue-btn').addEventListener('click', nextStep);
+    const continueBtn = container.querySelector('.continue-btn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', nextStep);
+    }
 }
 
 function showInteractiveStep(step, container) {
@@ -462,9 +455,16 @@ function showInteractiveStep(step, container) {
         </div>
     `;
 
-    container.querySelector('.check-btn').addEventListener('click', checkAnswer);
-    container.querySelector('.reset-btn').addEventListener('click', resetTask);
-    
+    const checkBtn = container.querySelector('.check-btn');
+    const resetBtn = container.querySelector('.reset-btn');
+
+    if (checkBtn) {
+        checkBtn.addEventListener('click', () => checkAnswer(step));
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => resetTask(step));
+    }
+
     initializeInteractiveTask(step.task);
 }
 
@@ -484,7 +484,10 @@ function showQuizStep(step, container) {
         </div>
     `;
 
-    container.querySelector('.check-btn').addEventListener('click', () => checkQuizAnswer(step.correct));
+    const checkBtn = container.querySelector('.check-btn');
+    if (checkBtn) {
+        checkBtn.addEventListener('click', () => checkQuizAnswer(step.correct));
+    }
 }
 
 function showCodeStep(step, container) {
@@ -528,9 +531,15 @@ function showCodeStep(step, container) {
 
     const runBtn = container.querySelector('.run-btn');
     const resetBtn = container.querySelector('.reset-btn');
+    
+    if (runBtn) {
+        runBtn.addEventListener('click', () => runCode(step));
+    }
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => resetCode(step));
+    }
 
-    runBtn.addEventListener('click', runCode);
-    resetBtn.addEventListener('click', resetCode);
+    // Инициализация редактора кода
     initializeCodeEditor(container.querySelector('.code-input'));
 }
 
@@ -545,67 +554,6 @@ function createInteractiveElement(task) {
         default:
             return '<p>Неизвестный тип задания</p>';
     }
-}
-
-function createSequenceTask(task) {
-    const blocks = shuffleArray([...task.options]);
-    return `
-        <div class="sequence-container">
-            <div class="blocks-available">
-                ${blocks.map(block => `
-                    <div class="sequence-item" draggable="true" data-value="${block}">
-                        ${block}
-                    </div>
-                `).join('')}
-            </div>
-            <div class="sequence-solution">
-                <p>Перетащи блоки сюда:</p>
-                <div class="drop-zone"></div>
-            </div>
-        </div>
-    `;
-}
-
-function createMatchingTask(task) {
-    const boxes = shuffleArray([...task.pairs]);
-    const values = shuffleArray(task.pairs.map(p => p.value));
-    return `
-        <div class="matching-container">
-            <div class="boxes-container">
-                ${boxes.map(pair => `
-                    <div class="matching-box" data-value="${pair.box}">
-                        ${pair.box}
-                    </div>
-                `).join('')}
-            </div>
-            <div class="values-container">
-                ${values.map(value => `
-                    <div class="matching-value" draggable="true" data-value="${value}">
-                        ${value}
-                    </div>
-                `).join('')}
-            </div>
-            <div class="matching-pairs"></div>
-        </div>
-    `;
-}
-
-function createConditionTask(task) {
-    return `
-        <div class="condition-container">
-            ${task.scenarios.map(scenario => `
-                <div class="scenario">
-                    <p>Если ${scenario.situation}:</p>
-                    <select class="condition-answer" data-situation="${scenario.situation}">
-                        <option value="">Выбери действие...</option>
-                        ${task.options.map(option => `
-                            <option value="${option}">${option}</option>
-                        `).join('')}
-                    </select>
-                </div>
-            `).join('')}
-        </div>
-    `;
 }
 
 function initializeInteractiveTask(task) {
@@ -628,8 +576,10 @@ function initDragAndDrop() {
         item.addEventListener('dragend', dragEnd);
     });
 
-    dropZone.addEventListener('dragover', dragOver);
-    dropZone.addEventListener('drop', drop);
+    if (dropZone) {
+        dropZone.addEventListener('dragover', dragOver);
+        dropZone.addEventListener('drop', drop);
+    }
 }
 
 function dragStart(e) {
@@ -655,152 +605,18 @@ function drop(e) {
     item.textContent = data;
     item.draggable = true;
     
+    // Добавляем те же обработчики для возможности перемещения
     item.addEventListener('dragstart', dragStart);
     item.addEventListener('dragend', dragEnd);
     
-    e.target.appendChild(item);
+    const dropZone = e.target.closest('.drop-zone') || e.target;
+    dropZone.appendChild(item);
 }
 
-// Проверка ответов
-function checkAnswer() {
-    const step = getCurrentStep();
-    let isCorrect = false;
-
-    switch (step.task.type) {
-        case 'sequence':
-            isCorrect = checkSequence();
-            break;
-        case 'matching':
-            isCorrect = checkMatching();
-            break;
-        case 'condition':
-            isCorrect = checkCondition();
-            break;
-    }
-
-    if (isCorrect) {
-        showSuccess("Правильно! 🎉");
-        nextStep();
-    } else {
-        showError("Попробуй еще раз! 💪");
-    }
+function returnToLessons() {
+    showLessonsSection();
 }
 
-function checkQuizAnswer(correctIndex) {
-    const selected = document.querySelector('input[name="quiz"]:checked');
-    if (!selected) {
-        showError("Выбери ответ!");
-        return;
-    }
-
-    if (parseInt(selected.value) === correctIndex) {
-        showSuccess("Правильно! 🎉");
-        nextStep();
-    } else {
-        showError("Попробуй еще раз! 💪");
-    }
-}
-
-function checkSequence() {
-    const sequence = Array.from(document.querySelectorAll('.sequence-item'))
-        .map(item => item.dataset.value);
-    const step = getCurrentStep();
-    return compareArrays(sequence, step.task.correct);
-}
-
-function checkMatching() {
-    const matches = Array.from(document.querySelectorAll('.matching-pair'))
-        .map(pair => ({
-            box: pair.querySelector('.box').dataset.value,
-            value: pair.querySelector('.value').dataset.value
-        }));
-    const step = getCurrentStep();
-    return compareMatches(matches, step.task.pairs);
-}
-
-function checkCondition() {
-    const answers = Array.from(document.querySelectorAll('.condition-answer'))
-        .map(answer => ({
-            situation: answer.dataset.situation,
-            response: answer.value
-        }));
-    const step = getCurrentStep();
-    return compareConditions(answers, step.task.scenarios);
-}
-
-// Работа с кодом
-function runCode() {
-    const codeInput = document.querySelector('.code-input');
-    const outputArea = document.querySelector('.code-output');
-    const code = codeInput.value;
-    const step = getCurrentStep();
-
-    try {
-        const result = evaluateCode(code);
-        if (result.success) {
-            outputArea.innerHTML = result.output;
-            outputArea.classList.remove('error');
-            
-            if (checkCodeResult(result, step.test_cases)) {
-                userProgress.codeSubmissions++;
-                showSuccess("Код работает правильно! 🎉");
-                nextStep();
-            } else {
-                showError("Код работает не так, как ожидается. Проверь результаты!");
-            }
-        } else {
-            outputArea.innerHTML = `Ошибка: ${result.error}`;
-            outputArea.classList.add('error');
-            showError("В коде есть ошибка!");
-        }
-    } catch (error) {
-        outputArea.innerHTML = `Ошибка: ${error.message}`;
-        outputArea.classList.add('error');
-        showError("Произошла ошибка при выполнении кода!");
-    }
-}
-
-function evaluateCode(code) {
-    try {
-        const sandbox = {
-            print: (text) => sandbox.output.push(text),
-            output: [],
-            console: {
-                log: (text) => sandbox.output.push(text)
-            }
-        };
-
-        const wrappedCode = `
-            ${code}
-            return output;
-        `;
-
-        const fn = new Function('print', 'output', 'console', wrappedCode);
-        const result = fn.call(sandbox, sandbox.print, sandbox.output, sandbox.console);
-        
-        return {
-            success: true,
-            output: sandbox.output.join('\n')
-        };
-    } catch (error) {
-        return {
-            success: false,
-            error: error.message
-        };
-    }
-}
-
-function resetCode() {
-    const step = getCurrentStep();
-    const codeInput = document.querySelector('.code-input');
-    const outputArea = document.querySelector('.code-output');
-    
-    codeInput.value = step.template || '';
-    outputArea.innerHTML = '';
-    outputArea.classList.remove('error');
-}
-
-// Навигация
 function nextStep() {
     const lesson = getCurrentLesson();
     if (userProgress.currentStep < lesson.steps.length - 1) {
@@ -828,62 +644,30 @@ function jumpToStep(stepIndex) {
     }
 }
 
-// Вспомогательные функции
-function getCurrentLesson() {
-    return data.lessons.find(l => l.id === userProgress.currentLesson);
-}
-
-function getCurrentStep() {
-    const lesson = getCurrentLesson();
-    return lesson.steps[userProgress.currentStep];
-}
-
-function showSuccess(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification success animated';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-
-function showError(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification error animated';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-
-function showLockedMessage() {
-    showError("Сначала пройди предыдущие уроки! 🔒");
-}
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+function completeLessonAndShowReward(lesson) {
+    if (!userProgress.completedLessons.includes(lesson.id)) {
+        userProgress.completedLessons.push(lesson.id);
+        userProgress.points += lesson.reward.points;
+        userProgress.badges.push(lesson.reward.badge);
+        saveProgress();
     }
-    return array;
+
+    showReward(lesson.reward);
 }
 
-function compareArrays(arr1, arr2) {
-    return arr1.length === arr2.length && 
-           arr1.every((item, index) => item === arr2[index]);
+function showReward(reward) {
+    const mainContent = document.querySelector('main');
+    mainContent.innerHTML = `
+        <div class="reward-screen animated">
+            <h2>Поздравляем! 🎉</h2>
+            <div class="reward-content">
+                <p>Ты заработал ${reward.points} очков!</p>
+                <div class="new-badge animated">${reward.badge}</div>
+                <p>Новое достижение!</p>
+            </div>
+            <button onclick="returnToLessons()" class="continue-btn">
+                Продолжить обучение
+            </button>
+        </div>
+    `;
 }
-
-function compareMatches(userMatches, correctPairs) {
-    return correctPairs.every(pair => {
-        const userMatch = userMatches.find(m => m.box === pair.box);
-        return userMatch && userMatch.value === pair.value;
-    });
-}
-
-function compareConditions(userAnswers, correctScenarios) {
-    return correctScenarios.every(scenario => {
-        const userAnswer = userAnswers.find(a => a.situation === scenario.situation);
-        return userAnswer && userAnswer.response === scenario.correct;
-    });
-}
-
-// Инициализация приложения
-document.addEventListener('DOMContentLoaded', initApp);
