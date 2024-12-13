@@ -2,82 +2,133 @@
 let lessons = null;
 let currentLessonId = 1;
 
-// Загрузка и отображение урока
-function loadLesson(lessonNumber) {
-    fetch('lessons.json')
-        .then(response => response.json())
-        .then(data => {
-            lessons = data.lessons;
-            const lesson = lessons.find(l => l.id === lessonNumber);
-            if (lesson) {
-                displayLesson(lesson);
-                currentLessonId = lessonNumber;
-                updateProgress(lessonNumber);
-            } else {
-                showError('Урок не найден');
-            }
-        })
-        .catch(error => showError('Ошибка загрузки урока'));
+// Инициализация приложения
+document.addEventListener('DOMContentLoaded', () => {
+    // Загружаем уроки при старте
+    fetchLessons().then(() => {
+        loadLesson(1);
+        updateProgressUI();
+    }).catch(error => {
+        showError('Не удалось загрузить уроки. Пожалуйста, обновите страницу.');
+        console.error('Error loading lessons:', error);
+    });
+});
+
+// Функция загрузки всех уроков
+async function fetchLessons() {
+    try {
+        const response = await fetch('lessons.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        lessons = data.lessons;
+        return lessons;
+    } catch (error) {
+        console.error('Error fetching lessons:', error);
+        throw error;
+    }
 }
 
-// Отображение урока в зависимости от типа
+// Функция загрузки конкретного урока
+function loadLesson(lessonNumber) {
+    if (!lessons) {
+        // Если уроки еще не загружены, пробуем загрузить их снова
+        fetchLessons().then(() => {
+            displayLesson(lessons.find(l => l.id === lessonNumber));
+            currentLessonId = lessonNumber;
+        }).catch(error => {
+            showError('Не удалось загрузить урок. Пожалуйста, обновите страницу.');
+        });
+        return;
+    }
+
+    const lesson = lessons.find(l => l.id === lessonNumber);
+    if (lesson) {
+        displayLesson(lesson);
+        currentLessonId = lessonNumber;
+        updateProgress(lessonNumber);
+    } else {
+        showError('Урок не найден');
+    }
+}
+
+// Функция отображения урока
 function displayLesson(lesson) {
     const content = document.getElementById('content');
-    
-    switch(lesson.type) {
-        case 'theory':
-            content.innerHTML = `
-                <div class="lesson">
-                    <h2>${lesson.title}</h2>
-                    ${lesson.content}
-                </div>
-            `;
-            break;
-            
-        case 'quiz':
-            let quizHTML = `
-                <div class="lesson">
-                    <h2>${lesson.title}</h2>
-                    <div class="quiz">
-                        ${lesson.questions.map((q, index) => `
-                            <div class="quiz-question" id="question-${index}">
-                                <p>${q.question}</p>
-                                ${q.options.map((option, optIndex) => `
-                                    <label class="quiz-option">
-                                        <input type="checkbox" name="q${index}" value="${optIndex}">
-                                        ${option}
-                                    </label>
-                                `).join('<br>')}
-                                <div class="feedback" id="feedback-${index}"></div>
-                            </div>
-                        `).join('')}
-                        <button onclick="checkQuiz(${lesson.id})" class="check-button">Проверить ответы</button>
-                    </div>
-                </div>
-            `;
-            content.innerHTML = quizHTML;
-            break;
-            
-        case 'coding':
-            content.innerHTML = `
-                <div class="lesson">
-                    <h2>${lesson.title}</h2>
-                    <p class="task-description">${lesson.description}</p>
-                    <div class="coding-area">
-                        <div class="editor-toolbar">
-                            <button onclick="resetCode()" class="toolbar-button">🔄 Сбросить</button>
-                            <button onclick="showHint()" class="toolbar-button">💡 Подсказка</button>
+    if (!content) {
+        console.error('Content element not found');
+        return;
+    }
+
+    try {
+        switch(lesson.type) {
+            case 'theory':
+                content.innerHTML = `
+                    <div class="lesson">
+                        <h2>${lesson.title}</h2>
+                        ${lesson.content}
+                        <div class="navigation-buttons">
+                            ${currentLessonId > 1 ? 
+                                `<button onclick="loadLesson(${currentLessonId - 1})" class="nav-button prev">⬅️ Предыдущий урок</button>` 
+                                : ''}
+                            <button onclick="loadLesson(${currentLessonId + 1})" class="nav-button next">Следующий урок ➡️</button>
                         </div>
-                        <textarea id="code-editor" class="code-editor" 
-                            placeholder="Напиши свой код здесь..."
-                            spellcheck="false">${lesson.startingCode || ''}</textarea>
-                        <button onclick="runCode()" class="run-button">▶️ Запустить код</button>
                     </div>
-                    <div id="code-output" class="code-output"></div>
-                </div>
-            `;
-            initializeCodeEditor();
-            break;
+                `;
+                break;
+                
+            case 'quiz':
+                let quizHTML = `
+                    <div class="lesson">
+                        <h2>${lesson.title}</h2>
+                        <div class="quiz">
+                            ${lesson.questions.map((q, index) => `
+                                <div class="quiz-question" id="question-${index}">
+                                    <p>${q.question}</p>
+                                    ${q.options.map((option, optIndex) => `
+                                        <label class="quiz-option">
+                                            <input type="checkbox" name="q${index}" value="${optIndex}">
+                                            ${option}
+                                        </label>
+                                    `).join('')}
+                                    <div class="feedback" id="feedback-${index}"></div>
+                                </div>
+                            `).join('')}
+                            <button onclick="checkQuiz(${lesson.id})" class="check-button">Проверить ответы</button>
+                        </div>
+                    </div>
+                `;
+                content.innerHTML = quizHTML;
+                break;
+                
+            case 'coding':
+                content.innerHTML = `
+                    <div class="lesson">
+                        <h2>${lesson.title}</h2>
+                        <p class="task-description">${lesson.description}</p>
+                        <div class="coding-area">
+                            <div class="editor-toolbar">
+                                <button onclick="resetCode()" class="toolbar-button">🔄 Сбросить</button>
+                                <button onclick="showHint()" class="toolbar-button">💡 Подсказка</button>
+                            </div>
+                            <textarea id="code-editor" class="code-editor" 
+                                placeholder="Напиши свой код здесь..."
+                                spellcheck="false">${lesson.startingCode || ''}</textarea>
+                            <button onclick="runCode()" class="run-button">▶️ Запустить код</button>
+                        </div>
+                        <div id="code-output" class="code-output"></div>
+                    </div>
+                `;
+                initializeCodeEditor();
+                break;
+                
+            default:
+                throw new Error('Неизвестный тип урока');
+        }
+    } catch (error) {
+        console.error('Error displaying lesson:', error);
+        showError('Произошла ошибка при отображении урока');
     }
 }
 
@@ -193,7 +244,6 @@ function runCode() {
                             }
                             break;
                     }
-
                 } catch (e) {
                     errors.push(`Тест "${test.name}": ${e.message}`);
                 }
@@ -251,7 +301,6 @@ function runCode() {
         `;
     }
 }
-
 // Функция проверки теста
 function checkQuiz(lessonId) {
     const currentLesson = lessons.find(l => l.id === lessonId);
@@ -269,7 +318,7 @@ function checkQuiz(lessonId) {
             .sort();
             
         // Получаем правильные ответы
-        const correctAnswers = currentLesson.questions[index].correctAnswers.sort();
+        const correctAnswers = [...currentLesson.questions[index].correctAnswers].sort();
         
         // Проверяем правильность ответов
         const isCorrect = arraysEqual(selectedAnswers, correctAnswers);
@@ -283,12 +332,17 @@ function checkQuiz(lessonId) {
             feedbackElement.innerHTML = `
                 <div class="feedback correct">
                     <p>✨ Правильно!</p>
+                    <div class="feedback-details">Отличная работа!</div>
                 </div>
             `;
+            showSuccessAnimation();
         } else {
             feedbackElement.innerHTML = `
                 <div class="feedback incorrect">
                     <p>🤔 Попробуй еще раз!</p>
+                    <div class="feedback-details">
+                        Подумай внимательнее над этим вопросом.
+                    </div>
                 </div>
             `;
         }
@@ -298,14 +352,26 @@ function checkQuiz(lessonId) {
     const resultHTML = `
         <div class="quiz-result">
             <h3>Твой результат: ${score} из ${total}</h3>
-            ${score === total ? 
-                `<div class="success-message">
-                    <p>🎉 Отлично! Ты можешь перейти к следующему уроку!</p>
-                    <button onclick="loadLesson(${lessonId + 1})" class="next-button">Следующий урок</button>
-                </div>` 
-                : 
-                '<p>🎯 Исправь ошибки и попробуй снова!</p>'
-            }
+            <div class="result-details">
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${(score/total) * 100}%"></div>
+                </div>
+                ${score === total ? 
+                    `<div class="success-message">
+                        <p>🎉 Отлично! Ты справился со всеми заданиями!</p>
+                        <button onclick="loadLesson(${lessonId + 1})" class="next-button">
+                            Перейти к следующему уроку
+                        </button>
+                    </div>` 
+                    : 
+                    `<div class="retry-message">
+                        <p>🎯 Почти получилось! Исправь ошибки и попробуй снова.</p>
+                        <button onclick="checkQuiz(${lessonId})" class="retry-button">
+                            Проверить снова
+                        </button>
+                    </div>`
+                }
+            </div>
         </div>
     `;
     
@@ -322,88 +388,12 @@ function checkQuiz(lessonId) {
         updateProgress(lessonId);
         saveProgress();
     }
+
+    // Анимируем прокрутку к результатам
+    document.querySelector('.quiz-result').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Вспомогательные функции
-function arraysEqual(arr1, arr2) {
-    if (arr1.length !== arr2.length) return false;
-    return arr1.every((val, idx) => val === arr2[idx]);
-}
-
-function enableNextLesson() {
-    const nextButton = document.createElement('button');
-    nextButton.className = 'next-button';
-    nextButton.textContent = 'Следующий урок';
-    nextButton.onclick = () => loadLesson(currentLessonId + 1);
-    
-    const nextLessonDiv = document.createElement('div');
-    nextLessonDiv.className = 'next-lesson';
-    nextLessonDiv.appendChild(nextButton);
-    
-    const output = document.getElementById('code-output');
-    if (!output.querySelector('.next-lesson')) {
-        output.appendChild(nextLessonDiv);
-    }
-}
-
-function showError(message) {
-    const content = document.getElementById('content');
-    content.innerHTML = `
-        <div class="error-message">
-            <h3>❌ Ошибка</h3>
-            <p>${message}</p>
-        </div>
-    `;
-}
-
-function resetCode() {
-    const currentLesson = lessons.find(l => l.id === currentLessonId);
-    const editor = document.getElementById('code-editor');
-    editor.value = currentLesson.startingCode || '';
-}
-
-function showHint() {
-    const currentLesson = lessons.find(l => l.id === currentLessonId);
-    const output = document.getElementById('code-output');
-    output.innerHTML = `
-        <div class="hint-box">
-            <h3>💡 Подсказка:</h3>
-            <p>${currentLesson.hint}</p>
-        </div>
-    `;
-}
-
-// Функции для работы с прогрессом
-function updateProgress(lessonId) {
-    const progress = getProgress();
-    if (!progress.includes(lessonId)) {
-        progress.push(lessonId);
-    }
-    localStorage.setItem('lessonProgress', JSON.stringify(progress));
-    updateProgressUI();
-}
-
-function getProgress() {
-    const progress = localStorage.getItem('lessonProgress');
-    return progress ? JSON.parse(progress) : [];
-}
-
-function updateProgressUI() {
-    const progress = getProgress();
-    document.querySelectorAll('.lesson-link').forEach(link => {
-        const lessonId = parseInt(link.dataset.lessonId);
-        if (progress.includes(lessonId)) {
-            link.classList.add('completed');
-        }
-    });
-}
-
-function saveProgress() {
-    const progress = getProgress();
-    localStorage.setItem('lessonProgress', JSON.stringify(progress));
-}
-
-// Функции инициализации редактора кода
+// Функции для работы с редактором кода
 function initializeCodeEditor() {
     const editor = document.getElementById('code-editor');
     if (editor) {
@@ -412,18 +402,12 @@ function initializeCodeEditor() {
             highlightCurrentLine(editor);
         });
 
-        // Добавляем автоматические отступы
+        // Автоматические отступы
         editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                insertTab(editor);
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                insertNewLineWithIndent(editor);
-            }
+            handleEditorKeydown(e, editor);
         });
 
-        // Включаем автосохранение
+        // Автосохранение
         editor.addEventListener('input', debounce(() => {
             saveCodeToLocalStorage(editor.value);
         }, 1000));
@@ -433,33 +417,80 @@ function initializeCodeEditor() {
         if (savedCode) {
             editor.value = savedCode;
         }
+
+        // Добавляем нумерацию строк
+        updateLineNumbers(editor);
     }
 }
 
-// Функции для работы с редактором кода
-function highlightCurrentLine(editor) {
-    const lines = editor.value.substr(0, editor.selectionStart).split('\n').length;
-    const totalLines = editor.value.split('\n').length;
-    editor.style.backgroundImage = `linear-gradient(transparent ${(lines-1)*24}px, #f0f0f0 ${(lines-1)*24}px, #f0f0f0 ${lines*24}px, transparent ${lines*24}px)`;
+function handleEditorKeydown(e, editor) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        insertTab(editor);
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        insertNewLineWithIndent(editor);
+    } else if (e.key === '}') {
+        handleClosingBrace(e, editor);
+    }
 }
 
 function insertTab(editor) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
-    const spaces = '    '; // 4 пробела для отступа
-    editor.value = editor.value.substring(0, start) + spaces + editor.value.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + spaces.length;
+    
+    if (start === end) {
+        // Если нет выделения, просто вставляем отступ
+        const spaces = '    ';
+        editor.value = editor.value.substring(0, start) + spaces + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + spaces.length;
+    } else {
+        // Если есть выделение, добавляем отступы к каждой строке
+        const lines = editor.value.substring(start, end).split('\n');
+        const indentedLines = lines.map(line => '    ' + line);
+        const newText = indentedLines.join('\n');
+        
+        editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
+        editor.selectionStart = start;
+        editor.selectionEnd = start + newText.length;
+    }
+    
+    updateLineNumbers(editor);
 }
 
 function insertNewLineWithIndent(editor) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
-    const lines = editor.value.substr(0, start).split('\n');
+    const text = editor.value;
+    
+    // Находим текущую строку
+    const lines = text.substr(0, start).split('\n');
     const currentLine = lines[lines.length - 1];
+    
+    // Получаем текущий отступ
     const indent = currentLine.match(/^\s*/)[0];
-    const newLine = '\n' + indent;
-    editor.value = editor.value.substring(0, start) + newLine + editor.value.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + newLine.length;
+    
+    // Проверяем, нужно ли добавить дополнительный отступ
+    const needsExtraIndent = currentLine.trim().endsWith('{');
+    const newIndent = needsExtraIndent ? indent + '    ' : indent;
+    
+    // Вставляем новую строку с отступом
+    const newText = '\n' + newIndent;
+    editor.value = text.substring(0, start) + newText + text.substring(end);
+    editor.selectionStart = editor.selectionEnd = start + newText.length;
+    
+    updateLineNumbers(editor);
+}
+
+function updateLineNumbers(editor) {
+    const lineNumbersElement = document.getElementById('line-numbers');
+    if (!lineNumbersElement) {
+        return;
+    }
+
+    const lines = editor.value.split('\n').length;
+    const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+    lineNumbersElement.textContent = lineNumbers;
 }
 
 // Функции для работы с локальным хранилищем
@@ -484,17 +515,25 @@ function debounce(func, wait) {
     };
 }
 
-// Функции для анимаций и визуальных эффектов
+function arraysEqual(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false;
+    }
+    return true;
+}
+
+// Функции для анимаций
 function showSuccessAnimation() {
     const container = document.createElement('div');
     container.className = 'success-animation';
     container.innerHTML = `
-        <div class="success-circle">
-            <div class="success-tick"></div>
-        </div>
-        <p>Отлично!</p>
+        <div class="success-icon">✨</div>
+        <div class="success-message">Отлично!</div>
     `;
+    
     document.body.appendChild(container);
+    
     setTimeout(() => {
         container.classList.add('fade-out');
         setTimeout(() => container.remove(), 500);
@@ -505,76 +544,55 @@ function showErrorAnimation() {
     const container = document.createElement('div');
     container.className = 'error-animation';
     container.innerHTML = `
-        <div class="error-circle">
-            <div class="error-x"></div>
-        </div>
-        <p>Попробуй еще раз!</p>
+        <div class="error-icon">❌</div>
+        <div class="error-message">Попробуй еще раз!</div>
     `;
+    
     document.body.appendChild(container);
+    
     setTimeout(() => {
         container.classList.add('fade-out');
         setTimeout(() => container.remove(), 500);
     }, 1500);
 }
 
-// Функции для отслеживания прогресса выполнения
-function trackProgress() {
-    const progress = {
-        lessonId: currentLessonId,
-        attempts: getAttempts() + 1,
-        timeSpent: getTimeSpent(),
-        timestamp: new Date().toISOString()
-    };
-    saveProgressData(progress);
+// Функции для отображения подсказок
+function showHint() {
+    const currentLesson = lessons.find(l => l.id === currentLessonId);
+    const output = document.getElementById('code-output');
+    if (!currentLesson || !output) return;
+
+    output.innerHTML = `
+        <div class="hint-box">
+            <h3>💡 Подсказка:</h3>
+            <p>${currentLesson.hint || 'Для этого задания подсказка не предусмотрена.'}</p>
+        </div>
+    `;
 }
 
-function getAttempts() {
-    const attempts = localStorage.getItem(`attempts_lesson_${currentLessonId}`);
-    return attempts ? parseInt(attempts) : 0;
-}
+function resetCode() {
+    const currentLesson = lessons.find(l => l.id === currentLessonId);
+    const editor = document.getElementById('code-editor');
+    if (!currentLesson || !editor) return;
 
-function getTimeSpent() {
-    const startTime = localStorage.getItem(`start_time_lesson_${currentLessonId}`);
-    if (!startTime) return 0;
-    return Math.floor((new Date() - new Date(startTime)) / 1000);
-}
-
-function saveProgressData(progress) {
-    let allProgress = JSON.parse(localStorage.getItem('lesson_progress_data') || '[]');
-    allProgress.push(progress);
-    localStorage.setItem('lesson_progress_data', JSON.stringify(allProgress));
-}
-
-// Функции для подсказок и помощи
-function showContextHelp(element) {
-    const helpText = element.dataset.help;
-    if (!helpText) return;
-
-    const helpBox = document.createElement('div');
-    helpBox.className = 'context-help';
-    helpBox.textContent = helpText;
-    
-    const rect = element.getBoundingClientRect();
-    helpBox.style.top = `${rect.bottom + 5}px`;
-    helpBox.style.left = `${rect.left}px`;
-    
-    document.body.appendChild(helpBox);
-    
-    element.addEventListener('mouseleave', () => helpBox.remove());
-}
-
-// Инициализация приложения
-document.addEventListener('DOMContentLoaded', () => {
-    loadLesson(1);
-    updateProgressUI();
-    
-    // Добавляем обработчики контекстной помощи
-    document.querySelectorAll('[data-help]').forEach(element => {
-        element.addEventListener('mouseenter', () => showContextHelp(element));
-    });
-    
-    // Устанавливаем время начала урока
-    if (!localStorage.getItem(`start_time_lesson_${currentLessonId}`)) {
-        localStorage.setItem(`start_time_lesson_${currentLessonId}`, new Date().toISOString());
+    if (confirm('Ты уверен, что хочешь сбросить код? Весь твой текущий код будет удален.')) {
+        editor.value = currentLesson.startingCode || '';
+        updateLineNumbers(editor);
     }
-});
+}
+
+// Функции для отображения ошибок
+function showError(message) {
+    const content = document.getElementById('content');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="error-message">
+            <h3>❌ Ошибка</h3>
+            <p>${message}</p>
+            <button onclick="location.reload()" class="retry-button">
+                🔄 Попробовать снова
+            </button>
+        </div>
+    `;
+}
