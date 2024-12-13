@@ -1,4 +1,3 @@
-/* Базовые стили */
 @import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&display=swap');
 
 * {
@@ -9,452 +8,214 @@
 
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: linear-gradient(135deg, #FFE5E5 0%, #E5F3FF 50%, #E6FFE5 100%);
-    color: #333;
-    min-height: 100vh;
+    line-height: 1.6;
+    background-color: #FFE5E5;
+    background-image: linear-gradient(45deg, #FFE5E5 25%, #FFF5F5 25%, #FFF5F5 50%, #FFE5E5 50%, #FFE5E5 75%, #FFF5F5 75%, #FFF5F5 100%);
+    background-size: 40px 40px;
 }
 
-/* Заголовок и навигация */
 header {
-    background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
-    padding: 1.5rem;
-    text-align: center;
+    background-color: #FF6B6B;
     color: white;
-    border-bottom: 8px solid #FFD93D;
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 8px solid #FF5252;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 h1 {
-    text-shadow: 3px 3px 0 #FF6B6B;
     font-size: 2.5rem;
-    margin-bottom: 1rem;
+    text-shadow: 2px 2px 0 #FF5252;
     animation: bounce 2s infinite;
 }
 
-nav {
-    margin-top: 1rem;
-}
-
-button {
-    background: #FFD93D;
-    border: 4px solid #FF6B6B;
-    padding: 0.8rem 1.5rem;
-    margin: 0 0.5rem;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    font-family: 'Comic Sans MS', cursive;
-    color: #333;
-    transition: all 0.3s;
-    box-shadow: 0 4px 0 #FF6B6B;
-}
-
-button:hover {
-    transform: translateY(-5px) rotate(-2deg);
-    box-shadow: 0 8px 0 #FF6B6B;
-    background: #FFE869;
-}
-
-button:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #FF6B6B;
-}
-
-button:disabled {
-    background: #ccc;
-    border-color: #999;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-/* Основной контент */
-main {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-section {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 25px;
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    border: 5px dashed #4ECDC4;
-}
-
-/* Уроки */
-.lesson-card {
-    background: white;
-    padding: 1.5rem;
-    margin: 1rem 0;
-    border-radius: 20px;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-    border: 3px solid #4ECDC4;
-    position: relative;
-    overflow: hidden;
-}
-
-.lesson-card:hover {
-    transform: translateY(-5px) rotate(1deg);
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
-}
-
-.lesson-card.completed {
-    border-color: #4CAF50;
-    background: #f0fff0;
-}
-
-.lesson-card.locked {
-    opacity: 0.7;
-    background: #f5f5f5;
-    cursor: not-allowed;
-}
-
-.lesson-icon {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 2rem;
-}
-
-/* Достижения */
-.achievement-card {
-    background: white;
-    padding: 1.5rem;
-    margin: 1rem 0;
-    border-radius: 20px;
-    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: all 0.3s;
-}
-
-.achievement-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
-}
-
-.achievement-icon {
-    font-size: 2.5rem;
-    min-width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    border-radius: 50%;
-}
-
-/* Редактор кода */
-.code-editor {
-    background: #1e1e1e;
-    border-radius: 10px;
-    padding: 1rem;
-    margin: 1rem 0;
-}
-
-.editor-toolbar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.code-input {
-    width: 100%;
-    min-height: 200px;
-    background: #2d2d2d;
-    color: #fff;
-    font-family: monospace;
-    padding: 1rem;
-    border: none;
-    border-radius: 5px;
-    resize: vertical;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.code-input:focus {
-    outline: 2px solid #4ECDC4;
-}
-
-.output-area {
-    background: #fff;
-    padding: 1rem;
-    margin-top: 1rem;
-    border-radius: 5px;
-    min-height: 100px;
-}
-
-.output-area.error {
-    background: #ffebee;
-    color: #d32f2f;
-}
-
-/* Интерактивные задания */
-.interactive-task {
-    padding: 1rem;
-    background: #fff;
-    border-radius: 15px;
-    margin: 1rem 0;
-}
-
-.sequence-item {
-    padding: 0.8rem;
-    background: #fff;
-    border: 2px solid #4ECDC4;
-    border-radius: 10px;
-    margin: 0.5rem;
-    cursor: move;
-    user-select: none;
-}
-
-.sequence-item.dragging {
-    opacity: 0.5;
-}
-
-.drop-zone {
-    min-height: 100px;
-    border: 3px dashed #4ECDC4;
-    border-radius: 10px;
-    padding: 1rem;
-    margin: 1rem 0;
-    background: #f9f9f9;
-}
-
-/* Викторина */
-.quiz .option {
-    display: block;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    background: #f5f5f5;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.quiz .option:hover {
-    background: #e0e0e0;
-}
-
-.quiz input[type="radio"] {
-    margin-right: 1rem;
-}
-
-/* Прогресс */
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background: #e0e0e0;
-    border-radius: 10px;
-    margin: 1rem 0;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4ECDC4, #FFD93D);
-    transition: width 0.5s ease;
-}
-
-/* Уведомления */
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 1rem 2rem;
-    border-radius: 10px;
-    color: white;
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-}
-
-.notification.success {
-    background: #4CAF50;
-}
-
-.notification.error {
-    background: #f44336;
-}
-
-/* Модальные окна */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 20px;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
-}
-
-.close-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-/* Анимации */
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
 
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+nav ul {
+    list-style: none;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
 }
 
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    background-color: #4DC591;
+    transition: all 0.3s;
+    border: 3px solid #45B583;
+    font-size: 1.2rem;
+}
+
+nav a:hover {
+    background-color: #45B583;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    border: 6px solid #FFB5B5;
+}
+
+.welcome-screen {
+    text-align: center;
+    padding: 2rem;
+}
+
+.welcome-screen h2 {
+    color: #FF6B6B;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-image {
+    margin: 2rem 0;
+    border-radius: 20px;
+    border: 5px solid #4DC591;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.welcome-image:hover {
+    transform: scale(1.05);
+}
+
+.lesson {
+    padding: 1.5rem;
+    background-color: #FAFAFA;
+    border-radius: 15px;
+    border: 4px solid #FFB5B5;
+}
+
+.lesson h2 {
+    color: #FF6B6B;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.quiz-question {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background-color: #F0FFF0;
+    border-radius: 15px;
+    border: 3px solid #4DC591;
+    transition: transform 0.3s;
+}
+
+.quiz-question:hover {
+    transform: translateX(10px);
+}
+
+.quiz-question label {
+    display: block;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+.quiz-question label:hover {
+    background-color: #E0FFE0;
+}
+
+.coding-area textarea {
+    width: 100%;
+    height: 200px;
+    padding: 1rem;
+    border: 3px solid #4DC591;
+    border-radius: 15px;
+    font-family: 'Monaco', monospace;
+    font-size: 1.1rem;
+    background-color: #F8F8F8;
+    resize: vertical;
+}
+
+button {
+    background-color: #4DC591;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    border: 3px solid #45B583;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background-color: #45B583;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #FF6B6B;
+    font-size: 1.1rem;
+    background-color: #FFF5F5;
+    border-top: 4px solid #FFB5B5;
+}
+
+/* Добавляем анимации для элементов */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.animated {
+.lesson, .quiz-question, .coding-area {
     animation: fadeIn 0.5s ease-out;
 }
 
-/* Подсказки */
-.hints {
-    background: #fff3e0;
-    padding: 1rem;
-    border-radius: 10px;
-    margin: 1rem 0;
+/* Стили для правильных и неправильных ответов */
+.correct-answer {
+    background-color: #E0FFE0;
+    border-color: #4DC591;
 }
 
-.test-cases {
-    background: #e3f2fd;
-    padding: 1rem;
-    border-radius: 10px;
-    margin: 1rem 0;
+.wrong-answer {
+    background-color: #FFE0E0;
+    border-color: #FF6B6B;
 }
 
-/* Достижения уведомление */
-.achievement-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: linear-gradient(135deg, #FFD93D, #FF6B6B);
-    padding: 1rem;
-    border-radius: 15px;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Состояния загрузки */
-.loading {
-    opacity: 0.7;
-    pointer-events: none;
+/* Добавляем веселые иконки для списков */
+ul li {
+    list-style: none;
+    padding-left: 30px;
     position: relative;
 }
 
-.loading::after {
-    content: '';
+ul li:before {
+    content: '🌟';
     position: absolute;
+    left: 0;
     top: 50%;
-    left: 50%;
-    width: 30px;
-    height: 30px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    transform: translateY(-50%);
 }
 
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+/* Стили для подсказок */
+.tooltip {
+    background-color: #FFF5F5;
+    border: 2px solid #FFB5B5;
+    border-radius: 10px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: inline-block;
 }
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    header {
-        padding: 1rem;
-    }
-
-    h1 {
-        font-size: 2rem;
-    }
-
-    button {
-        width: 100%;
-        margin: 0.5rem 0;
-    }
-
-    .lesson-card {
-        padding: 1rem;
-    }
-
-    .code-input {
-        min-height: 150px;
-    }
-
-    .editor-toolbar {
-        flex-direction: column;
-    }
-
-    .achievement-card {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 1rem;
-        padding: 1rem;
-    }
-}
-
-/* Скрытые элементы */
-.hidden {
-    display: none !important;
-}
-
-/* Подвал */
-footer {
-    background: linear-gradient(90deg, #4ECDC4, #FF6B6B);
-    color: white;
-    padding: 1rem;
-    text-align: center;
-    margin-top: 2rem;
-}
-
-.footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-/* Утилиты */
-.text-center {
-    text-align: center;
-}
-
-.mt-1 { margin-top: 1rem; }
-.mb-1 { margin-bottom: 1rem; }
-.ml-1 { margin-left: 1rem; }
-.mr-1 { margin-right: 1rem; }
