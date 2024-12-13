@@ -17,6 +17,7 @@ async function initApp() {
         
         loadProgress();
         setupEventListeners();
+        setupModalHandlers();
         showWelcomeScreen();
     } catch (error) {
         console.error('Ошибка инициализации:', error);
@@ -56,12 +57,32 @@ function setupEventListeners() {
     }
 
     document.addEventListener('keydown', handleEditorKeyPress);
+}
 
-    // Добавляем обработчики для модальных окон
-    document.querySelectorAll('.modal .close-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modalId = this.closest('.modal').id;
+// Настройка модальных окон
+function setupModalHandlers() {
+    const helpBtn = document.querySelector('.help-btn');
+    const aboutBtn = document.querySelector('.about-btn');
+
+    if (helpBtn) {
+        helpBtn.addEventListener('click', () => showModal('helpModal'));
+    }
+    if (aboutBtn) {
+        aboutBtn.addEventListener('click', () => showModal('aboutModal'));
+    }
+
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modalId = btn.closest('.modal').id;
             closeModal(modalId);
+        });
+    });
+
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal(modal.id);
+            }
         });
     });
 }
@@ -179,6 +200,21 @@ function showSection(sectionId) {
     }
 }
 
+// Модальные окна
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
 // Работа с уроками
 function showWelcomeScreen() {
     const mainContent = document.querySelector('main');
@@ -186,7 +222,12 @@ function showWelcomeScreen() {
         <div class="welcome-screen">
             <h1 class="welcome-title">Добро пожаловать в мир программирования! 👋</h1>
             <div class="character animated">
-                <img src="/api/placeholder/200/200" alt="Учитель">
+                <svg width="200" height="200" viewBox="0 0 200 200">
+                    <circle cx="100" cy="80" r="50" fill="#FFD93D"/>
+                    <circle cx="80" cy="70" r="5" fill="#333"/>
+                    <circle cx="120" cy="70" r="5" fill="#333"/>
+                    <path d="M 70 100 Q 100 130 130 100" stroke="#333" stroke-width="3" fill="none"/>
+                </svg>
                 <p class="speech-bubble">Привет! Я буду твоим учителем программирования!</p>
             </div>
             <div class="welcome-info">
@@ -269,7 +310,7 @@ function getDifficultyStars(difficulty) {
     }
 }
 
-// Запуск и прохождение урока
+// Запуск урока
 async function startLesson(lessonId) {
     const lesson = data.lessons.find(l => l.id === lessonId);
     if (!lesson) return;
@@ -287,29 +328,37 @@ function showLesson(lesson) {
         <div class="lesson-container">
             <div class="lesson-header">
                 <h2>${lesson.title}</h2>
-                <button onclick="returnToLessons()" class="back-btn">
-                    ← К урокам
-                </button>
+                <button class="back-btn">← К урокам</button>
             </div>
-            <div class="progress-bar">
-                ${lesson.steps.map((_, index) => `
-                    <div class="progress-step ${index <= userProgress.currentStep ? 'active' : ''}"
-                         onclick="jumpToStep(${index})"
-                         title="Шаг ${index + 1}"></div>
-                `).join('')}
-            </div>
-            <div class="step-content"></div>
-            <div class="lesson-navigation">
-                <button onclick="previousStep()" class="nav-btn" 
-                    ${userProgress.currentStep === 0 ? 'disabled' : ''}>
-                    ⬅️ Назад
-                </button>
-                <button onclick="nextStep()" class="nav-btn">
-                    ${userProgress.currentStep === lesson.steps.length - 1 ? 'Завершить' : 'Дальше ➡️'}
-                </button>
+            <div class="step-container">
+                <div class="step-progress">
+                    ${lesson.steps.map((_, index) => `
+                        <div class="step-dot ${index <= userProgress.currentStep ? 'active' : ''}"
+                             onclick="jumpToStep(${index})"
+                             title="Шаг ${index + 1}"></div>
+                    `).join('')}
+                </div>
+                <div class="step-content"></div>
+                <div class="step-navigation">
+                    <button class="prev-btn" ${userProgress.currentStep === 0 ? 'disabled' : ''}>
+                        ⬅️ Назад
+                    </button>
+                    <button class="next-btn">
+                        ${userProgress.currentStep === lesson.steps.length - 1 ? 'Завершить' : 'Вперёд ➡️'}
+                    </button>
+                </div>
             </div>
         </div>
     `;
+
+    // Добавляем обработчики
+    const backBtn = mainContent.querySelector('.back-btn');
+    const prevBtn = mainContent.querySelector('.prev-btn');
+    const nextBtn = mainContent.querySelector('.next-btn');
+
+    backBtn.addEventListener('click', returnToLessons);
+    prevBtn.addEventListener('click', previousStep);
+    nextBtn.addEventListener('click', nextStep);
 
     showStep(lesson, userProgress.currentStep);
 }
@@ -337,12 +386,10 @@ function showStep(lesson, stepIndex) {
 function showExplanationStep(step, container) {
     container.innerHTML = `
         <div class="explanation animated">
-            <img src="${step.image}" alt="Иллюстрация" class="step-image">
             <div class="explanation-content">
                 <p>${step.content}</p>
                 ${step.examples ? `
                     <div class="examples">
-                        <h4>Примеры:</h4>
                         ${step.examples.map(example => `
                             <div class="example">
                                 <pre>${example}</pre>
@@ -351,11 +398,11 @@ function showExplanationStep(step, container) {
                     </div>
                 ` : ''}
             </div>
-            <button onclick="nextStep()" class="continue-btn">
-                Понятно! Идём дальше
-            </button>
+            <button class="continue-btn">Понятно! Идём дальше</button>
         </div>
     `;
+
+    container.querySelector('.continue-btn').addEventListener('click', nextStep);
 }
 
 function showInteractiveStep(step, container) {
@@ -364,15 +411,15 @@ function showInteractiveStep(step, container) {
             <div class="task-description">${step.content}</div>
             ${createInteractiveElement(step.task)}
             <div class="task-controls">
-                <button onclick="checkAnswer()" class="check-btn">
-                    Проверить
-                </button>
-                <button onclick="resetTask()" class="reset-btn">
-                    Начать заново
-                </button>
+                <button class="check-btn">Проверить</button>
+                <button class="reset-btn">Начать заново</button>
             </div>
         </div>
     `;
+
+    container.querySelector('.check-btn').addEventListener('click', checkAnswer);
+    container.querySelector('.reset-btn').addEventListener('click', resetTask);
+    
     initializeInteractiveTask(step.task);
 }
 
@@ -388,11 +435,11 @@ function showQuizStep(step, container) {
                     </label>
                 `).join('')}
             </div>
-            <button onclick="checkQuizAnswer(${step.correct})" class="check-btn">
-                Проверить
-            </button>
+            <button class="check-btn">Проверить</button>
         </div>
     `;
+
+    container.querySelector('.check-btn').addEventListener('click', () => checkQuizAnswer(step.correct));
 }
 
 function showCodeStep(step, container) {
@@ -411,12 +458,8 @@ function showCodeStep(step, container) {
             </div>
             <div class="code-editor">
                 <div class="editor-toolbar">
-                    <button onclick="runCode()" class="run-btn">
-                        ▶ Запустить
-                    </button>
-                    <button onclick="resetCode()" class="reset-btn">
-                        ↺ Сбросить
-                    </button>
+                    <button class="run-btn">▶ Запустить</button>
+                    <button class="reset-btn">↺ Сбросить</button>
                 </div>
                 <textarea class="code-input" spellcheck="false">${step.template || ''}</textarea>
                 <div class="output-area">
@@ -438,8 +481,206 @@ function showCodeStep(step, container) {
         </div>
     `;
 
-    // Инициализация подсветки синтаксиса и автодополнения
+    const runBtn = container.querySelector('.run-btn');
+    const resetBtn = container.querySelector('.reset-btn');
+
+    runBtn.addEventListener('click', runCode);
+    resetBtn.addEventListener('click', resetCode);
     initializeCodeEditor(container.querySelector('.code-input'));
+}
+
+function createInteractiveElement(task) {
+    switch (task.type) {
+        case 'sequence':
+            return createSequenceTask(task);
+        case 'matching':
+            return createMatchingTask(task);
+        case 'condition':
+            return createConditionTask(task);
+        default:
+            return '<p>Неизвестный тип задания</p>';
+    }
+}
+
+function createSequenceTask(task) {
+    const blocks = shuffleArray([...task.options]);
+    return `
+        <div class="sequence-container">
+            <div class="blocks-available">
+                ${blocks.map(block => `
+                    <div class="sequence-item" draggable="true" data-value="${block}">
+                        ${block}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="sequence-solution">
+                <p>Перетащи блоки сюда:</p>
+                <div class="drop-zone"></div>
+            </div>
+        </div>
+    `;
+}
+
+function createMatchingTask(task) {
+    const boxes = shuffleArray([...task.pairs]);
+    const values = shuffleArray(task.pairs.map(p => p.value));
+    return `
+        <div class="matching-container">
+            <div class="boxes-container">
+                ${boxes.map(pair => `
+                    <div class="matching-box" data-value="${pair.box}">
+                        ${pair.box}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="values-container">
+                ${values.map(value => `
+                    <div class="matching-value" draggable="true" data-value="${value}">
+                        ${value}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="matching-pairs"></div>
+        </div>
+    `;
+}
+
+function createConditionTask(task) {
+    return `
+        <div class="condition-container">
+            ${task.scenarios.map(scenario => `
+                <div class="scenario">
+                    <p>Если ${scenario.situation}:</p>
+                    <select class="condition-answer" data-situation="${scenario.situation}">
+                        <option value="">Выбери действие...</option>
+                        ${task.options.map(option => `
+                            <option value="${option}">${option}</option>
+                        `).join('')}
+                    </select>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function initializeInteractiveTask(task) {
+    switch (task.type) {
+        case 'sequence':
+            initDragAndDrop();
+            break;
+        case 'matching':
+            initMatchingDragAndDrop();
+            break;
+    }
+}
+
+function initDragAndDrop() {
+    const items = document.querySelectorAll('.sequence-item');
+    const dropZone = document.querySelector('.drop-zone');
+
+    items.forEach(item => {
+        item.addEventListener('dragstart', dragStart);
+        item.addEventListener('dragend', dragEnd);
+    });
+
+    dropZone.addEventListener('dragover', dragOver);
+    dropZone.addEventListener('drop', drop);
+}
+
+function dragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.dataset.value);
+    e.target.classList.add('dragging');
+}
+
+function dragEnd(e) {
+    e.target.classList.remove('dragging');
+}
+
+function dragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function drop(e) {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text/plain');
+    const item = document.createElement('div');
+    item.className = 'sequence-item';
+    item.dataset.value = data;
+    item.textContent = data;
+    item.draggable = true;
+    
+    item.addEventListener('dragstart', dragStart);
+    item.addEventListener('dragend', dragEnd);
+    
+    e.target.appendChild(item);
+}
+
+// Проверка ответов
+function checkAnswer() {
+    const step = getCurrentStep();
+    let isCorrect = false;
+
+    switch (step.task.type) {
+        case 'sequence':
+            isCorrect = checkSequence();
+            break;
+        case 'matching':
+            isCorrect = checkMatching();
+            break;
+        case 'condition':
+            isCorrect = checkCondition();
+            break;
+    }
+
+    if (isCorrect) {
+        showSuccess("Правильно! 🎉");
+        nextStep();
+    } else {
+        showError("Попробуй еще раз! 💪");
+    }
+}
+
+function checkQuizAnswer(correctIndex) {
+    const selected = document.querySelector('input[name="quiz"]:checked');
+    if (!selected) {
+        showError("Выбери ответ!");
+        return;
+    }
+
+    if (parseInt(selected.value) === correctIndex) {
+        showSuccess("Правильно! 🎉");
+        nextStep();
+    } else {
+        showError("Попробуй еще раз! 💪");
+    }
+}
+
+function checkSequence() {
+    const sequence = Array.from(document.querySelectorAll('.sequence-item'))
+        .map(item => item.dataset.value);
+    const step = getCurrentStep();
+    return compareArrays(sequence, step.task.correct);
+}
+
+function checkMatching() {
+    const matches = Array.from(document.querySelectorAll('.matching-pair'))
+        .map(pair => ({
+            box: pair.querySelector('.box').dataset.value,
+            value: pair.querySelector('.value').dataset.value
+        }));
+    const step = getCurrentStep();
+    return compareMatches(matches, step.task.pairs);
+}
+
+function checkCondition() {
+    const answers = Array.from(document.querySelectorAll('.condition-answer'))
+        .map(answer => ({
+            situation: answer.dataset.situation,
+            response: answer.value
+        }));
+    const step = getCurrentStep();
+    return compareConditions(answers, step.task.scenarios);
 }
 
 // Работа с кодом
@@ -476,7 +717,6 @@ function runCode() {
 
 function evaluateCode(code) {
     try {
-        // Создаем безопасную среду выполнения
         const sandbox = {
             print: (text) => sandbox.output.push(text),
             output: [],
@@ -485,17 +725,12 @@ function evaluateCode(code) {
             }
         };
 
-        // Оборачиваем код в функцию и добавляем перехват вывода
         const wrappedCode = `
             ${code}
-            // Возвращаем собранный вывод
             return output;
         `;
 
-        // Создаем функцию из кода
         const fn = new Function('print', 'output', 'console', wrappedCode);
-        
-        // Выполняем код в песочнице
         const result = fn.call(sandbox, sandbox.print, sandbox.output, sandbox.console);
         
         return {
@@ -510,17 +745,6 @@ function evaluateCode(code) {
     }
 }
 
-function checkCodeResult(result, testCases) {
-    if (!result.success) return false;
-    if (!testCases) return true;
-
-    return testCases.every(test => {
-        const output = result.output.trim();
-        const expected = test.output.trim();
-        return output === expected;
-    });
-}
-
 function resetCode() {
     const step = getCurrentStep();
     const codeInput = document.querySelector('.code-input');
@@ -531,80 +755,7 @@ function resetCode() {
     outputArea.classList.remove('error');
 }
 
-// Инициализация редактора кода
-function initializeCodeEditor(textarea) {
-    // Добавляем подсветку текущей строки
-    textarea.addEventListener('keyup', function() {
-        highlightCurrentLine(this);
-    });
-
-    // Добавляем автоматические отступы
-    textarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const cursorPos = this.selectionStart;
-            const currentLine = getCurrentLine(this.value, cursorPos);
-            const indent = getIndentation(currentLine);
-            
-            // Добавляем перенос строки с отступом
-            const newLine = '\n' + ' '.repeat(indent);
-            insertText(this, newLine);
-        }
-    });
-}
-
-function highlightCurrentLine(textarea) {
-    const lines = textarea.value.split('\n');
-    const cursorPos = textarea.selectionStart;
-    let currentLine = 0;
-    let charCount = 0;
-
-    // Находим текущую строку
-    for (let i = 0; i < lines.length; i++) {
-        charCount += lines[i].length + 1; // +1 для символа переноса строки
-        if (charCount > cursorPos) {
-            currentLine = i;
-            break;
-        }
-    }
-
-    // Обновляем подсветку
-    const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
-    const topOffset = currentLine * lineHeight;
-    
-    // Добавляем подсветку текущей строки
-    textarea.style.backgroundImage = `linear-gradient(transparent ${topOffset}px, rgba(255,255,255,0.1) ${topOffset}px, rgba(255,255,255,0.1) ${topOffset + lineHeight}px, transparent ${topOffset + lineHeight}px)`;
-}
-
-function getCurrentLine(text, cursorPos) {
-    const lines = text.split('\n');
-    let charCount = 0;
-    
-    for (let i = 0; i < lines.length; i++) {
-        charCount += lines[i].length + 1;
-        if (charCount > cursorPos) {
-            return lines[i];
-        }
-    }
-    
-    return '';
-}
-
-function getIndentation(line) {
-    const match = line.match(/^\s*/);
-    return match ? match[0].length : 0;
-}
-
-function insertText(textarea, text) {
-    const cursorPos = textarea.selectionStart;
-    const front = textarea.value.substring(0, cursorPos);
-    const back = textarea.value.substring(textarea.selectionEnd);
-    
-    textarea.value = front + text + back;
-    textarea.selectionStart = textarea.selectionEnd = cursorPos + text.length;
-}
-
-// Навигация по шагам урока
+// Навигация
 function nextStep() {
     const lesson = getCurrentLesson();
     if (userProgress.currentStep < lesson.steps.length - 1) {
@@ -624,60 +775,24 @@ function previousStep() {
     }
 }
 
-// Проверка ответов
-function checkAnswer() {
-    const step = getCurrentStep();
-    let isCorrect = false;
-
-    switch (step.task.type) {
-        case 'sequence':
-            isCorrect = checkSequence();
-            break;
-        case 'matching':
-            isCorrect = checkMatching();
-            break;
-        case 'condition':
-            isCorrect = checkCondition();
-            break;
-    }
-
-    if (isCorrect) {
-        showSuccess("Правильно! 🎉");
-        nextStep();
-    } else {
-        showError("Попробуй еще раз! 💪");
+function jumpToStep(stepIndex) {
+    const lesson = getCurrentLesson();
+    if (stepIndex <= userProgress.currentStep) {
+        userProgress.currentStep = stepIndex;
+        showLesson(lesson);
     }
 }
 
-// Вспомогательные функции для проверки ответов
-function checkSequence() {
-    const sequence = Array.from(document.querySelectorAll('.sequence-item'))
-        .map(item => item.dataset.value);
-    const step = getCurrentStep();
-    return compareArrays(sequence, step.task.correct);
+// Вспомогательные функции
+function getCurrentLesson() {
+    return data.lessons.find(l => l.id === userProgress.currentLesson);
 }
 
-function checkMatching() {
-    const matches = Array.from(document.querySelectorAll('.matching-pair'))
-        .map(pair => ({
-            box: pair.querySelector('.box').dataset.value,
-            value: pair.querySelector('.value').dataset.value
-        }));
-    const step = getCurrentStep();
-    return compareMatches(matches, step.task.pairs);
+function getCurrentStep() {
+    const lesson = getCurrentLesson();
+    return lesson.steps[userProgress.currentStep];
 }
 
-function checkCondition() {
-    const answers = Array.from(document.querySelectorAll('.condition-answer'))
-        .map(answer => ({
-            situation: answer.dataset.situation,
-            response: answer.value
-        }));
-    const step = getCurrentStep();
-    return compareConditions(answers, step.task.scenarios);
-}
-
-// Уведомления
 function showSuccess(message) {
     const notification = document.createElement('div');
     notification.className = 'notification success animated';
@@ -692,6 +807,37 @@ function showError(message) {
     notification.textContent = message;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
+}
+
+function showLockedMessage() {
+    showError("Сначала пройди предыдущие уроки! 🔒");
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function compareArrays(arr1, arr2) {
+    return arr1.length === arr2.length && 
+           arr1.every((item, index) => item === arr2[index]);
+}
+
+function compareMatches(userMatches, correctPairs) {
+    return correctPairs.every(pair => {
+        const userMatch = userMatches.find(m => m.box === pair.box);
+        return userMatch && userMatch.value === pair.value;
+    });
+}
+
+function compareConditions(userAnswers, correctScenarios) {
+    return correctScenarios.every(scenario => {
+        const userAnswer = userAnswers.find(a => a.situation === scenario.situation);
+        return userAnswer && userAnswer.response === scenario.correct;
+    });
 }
 
 // Инициализация приложения
