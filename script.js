@@ -9,21 +9,31 @@ let userProgress = {
     codeSubmissions: 0
 };
 
-// Инициализация приложения
 async function initApp() {
     try {
+        console.log('Инициализация приложения...');
         data = await loadData();
-        if (!data) return;
+        if (!data) {
+            console.error('Данные не загружены');
+            return;
+        }
         
         loadProgress();
         setupEventListeners();
         setupModalHandlers();
         showWelcomeScreen();
+        console.log('Приложение инициализировано');
     } catch (error) {
         console.error('Ошибка инициализации:', error);
         showError('Не удалось загрузить приложение');
     }
 }
+
+// Запуск приложения при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM загружен, запускаем приложение');
+    initApp();
+});
 
 // Загрузка данных
 async function loadData() {
@@ -65,20 +75,33 @@ function showAchievementsSection() {
     }
 }
 
-// Настройка обработчиков событий
 function setupEventListeners() {
+    console.log('Настройка обработчиков событий');
+    
+    // Навигационные кнопки
     const lessonsBtn = document.getElementById('lessonsBtn');
     const achievementsBtn = document.getElementById('achievementsBtn');
 
     if (lessonsBtn) {
-        lessonsBtn.addEventListener('click', showLessonsSection);
+        console.log('Найдена кнопка уроков');
+        lessonsBtn.addEventListener('click', () => {
+            console.log('Клик по кнопке уроков');
+            showLessonsSection();
+        });
     }
 
     if (achievementsBtn) {
-        achievementsBtn.addEventListener('click', showAchievementsSection);
+        console.log('Найдена кнопка достижений');
+        achievementsBtn.addEventListener('click', () => {
+            console.log('Клик по кнопке достижений');
+            showAchievementsSection();
+        });
     }
 
+    // Общие обработчики
     document.addEventListener('keydown', handleEditorKeyPress);
+
+    console.log('Обработчики событий настроены');
 }
 
 // Настройка модальных окон
@@ -276,6 +299,7 @@ function shouldLockLesson(lessonId) {
 function createLessonCard(lesson, isCompleted, isLocked) {
     const card = document.createElement('div');
     card.className = `lesson-card ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`;
+    card.dataset.lessonId = lesson.id; // Добавляем ID урока
     
     card.innerHTML = `
         <div class="lesson-icon">
@@ -293,6 +317,7 @@ function createLessonCard(lesson, isCompleted, isLocked) {
 
     const startBtn = card.querySelector('.start-btn');
     startBtn.addEventListener('click', () => {
+        console.log('Клик по кнопке урока:', lesson.id);
         if (isLocked) {
             showLockedMessage();
         } else {
@@ -301,6 +326,13 @@ function createLessonCard(lesson, isCompleted, isLocked) {
     });
     
     return card;
+}
+function hideAllSections() {
+    console.log('Скрываем все секции');
+    document.querySelectorAll('section').forEach(section => {
+        section.classList.add('hidden');
+        section.classList.remove('active-section');
+    });
 }
 
 function getDifficultyStars(difficulty) {
@@ -385,6 +417,27 @@ function showLesson(lesson) {
             </div>
         </div>
     `;
+
+    function showLessonsSection() {
+    console.log('Показываем секцию уроков');
+    hideAllSections();
+    const lessonsSection = document.getElementById('lessonsSection');
+    if (lessonsSection) {
+        lessonsSection.classList.remove('hidden');
+        lessonsSection.classList.add('active-section');
+        populateLessons();
+        
+        // Добавляем обработчики для кнопок в секции уроков
+        const lessonButtons = lessonsSection.querySelectorAll('.start-btn');
+        lessonButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const lessonCard = e.target.closest('.lesson-card');
+                const lessonId = lessonCard.dataset.lessonId;
+                startLesson(parseInt(lessonId));
+            });
+        });
+    }
+}
 
     // Добавляем обработчики
     const backBtn = mainContent.querySelector('.back-btn');
